@@ -47,8 +47,9 @@ FORMS    += mainwindow.ui \
 #DEPENDPATH += $$PWD/../../../../qwt-6.1.0/include
 
 
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../../Qwt-6.1.0/lib/ -lqwt
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../../Qwt-6.1.0/lib/ -lqwtd
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../Programas/qwt-6.1.0/lib/ -lqwt
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../Programas/qwt-6.1.0/lib/ -lqwtd
+else:unix: LIBS += -L$$PWD/../Programas/qwt-6.1.0/lib/ -lqwt
 
-INCLUDEPATH += $$PWD/../../../../../Qwt-6.1.0/include
-DEPENDPATH += $$PWD/../../../../../Qwt-6.1.0/include
+INCLUDEPATH += $$PWD/../Programas/qwt-6.1.0/include
+DEPENDPATH += $$PWD/../Programas/qwt-6.1.0/include
