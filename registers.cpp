@@ -103,6 +103,30 @@ short int Registers::getMode()
     return(MODE);
 }
 
+short int Registers::getPosPlotUnit(){
+    return(POS_PLOT_UNIT);
+}
+
+short int Registers::getTorPlotUnit(){
+    return(TOR_PLOT_UNIT);
+}
+
+double Registers::getPosXMax(){
+    return(POS_X_MAX);
+}
+
+double Registers::getPosYMax(){
+    return(POS_Y_MAX);
+}
+
+double Registers::getTorXMax(){
+    return(TOR_X_MAX);
+}
+
+double Registers::getTorYMax(){
+    return(TOR_Y_MAX);
+}
+
 void Registers::setMonitoring (short int v){
     MONITORING = v;
 }
@@ -175,4 +199,28 @@ void Registers::setSerialPeriod(short int v)
 void Registers::setMode(short int v)
 {
     MODE = v;
+}
+
+void Registers::setPosPlotUnit(short int v){
+    POS_PLOT_UNIT = v;
+}
+
+void Registers::setTorPlotUnit(short int v){
+    TOR_PLOT_UNIT = v;
+}
+
+void Registers::setPosXMax(double v){
+    POS_X_MAX = v;
+}
+
+void Registers::setPosYMax(double v){
+    POS_Y_MAX = v;
+}
+
+void Registers::setTorXMax(double v){
+    TOR_X_MAX = v;
+}
+
+void Registers::setTorYMax(double v){
+    TOR_Y_MAX = v;
 }

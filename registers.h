@@ -29,6 +29,13 @@ public:
 
     short int getMode();
 
+    short int getPosPlotUnit();
+    short int getTorPlotUnit();
+    double getPosXMax();
+    double getPosYMax();
+    double getTorXMax();
+    double getTorYMax();
+
     void setMonitoring (short int v);
     void setSensoring (short int v);
     void setTrajectory (short int v);
@@ -49,6 +56,13 @@ public:
     void setSerialPeriod(short int v);
 
     void setMode(short int v);
+
+    void setPosPlotUnit(short int v);
+    void setTorPlotUnit(short int v);
+    void setPosXMax(double v);
+    void setPosYMax(double v);
+    void setTorXMax(double v);
+    void setTorYMax(double v);
 
 private:
 
@@ -72,6 +86,13 @@ private:
     short int SERIAL_PERIOD;
 
     short int MODE;
+
+    short int POS_PLOT_UNIT;        //0 = volt, 1 = phys
+    short int TOR_PLOT_UNIT;        //0 = volt, 1 = phys
+    double POS_X_MAX;
+    double POS_Y_MAX;
+    double TOR_X_MAX;
+    double TOR_Y_MAX;
 };
 
 #endif // REGISTERS_H

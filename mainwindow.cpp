@@ -18,6 +18,10 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    ui->potPlot->setAxisScale(0,-20,20,5);
+    ui->potPlot->setAxisScale(2,0,1,0.1);
+    ui->torPlot->setAxisScale(0,-2,2,0.5);
+    ui->torPlot->setAxisScale(2,0,1,0.1);
     connect(ui->actionSave_Current_Config, SIGNAL(triggered()), this, SLOT(save_config()));
     connect(ui->actionLoad_Config, SIGNAL(triggered()), this, SLOT(load_config()));
 }
