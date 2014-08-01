@@ -4,19 +4,32 @@
 #include <QDialog>
 
 namespace Ui {
-class dialTorPlot;
+class DialTorPlot;
 }
 
-class dialTorPlot : public QDialog
+class DialTorPlot : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit dialTorPlot(QWidget *parent = 0);
-    ~dialTorPlot();
+    explicit DialTorPlot(QWidget *parent = 0);
+    ~DialTorPlot();
+
+private slots:
+    void on_vButton_clicked();
+
+    void on_physButton_clicked();
+
+    void on_vButton_toggled(bool checked);
+
+    void on_physButton_toggled(bool checked);
+
+    void on_buttonBox_rejected();
+
+    void on_buttonBox_accepted();
 
 private:
-    Ui::dialTorPlot *ui;
+    Ui::DialTorPlot *ui;
 };
 
 #endif // DIALTORPLOT_H

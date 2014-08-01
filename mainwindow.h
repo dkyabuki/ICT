@@ -16,6 +16,8 @@ public:
     ~MainWindow();
 
 private slots:
+    void close_program();
+
     void save_config();
 
     void load_config();
@@ -32,7 +34,12 @@ private slots:
 
     void on_torSaveButton_clicked();
 
+    void on_torConfigButton_clicked();
+
+    void on_posConfigButton_clicked();
+
 private:
+    void updatePlotCanvas();
     Ui::MainWindow *ui;
 };
 

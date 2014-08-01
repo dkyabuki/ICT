@@ -9,22 +9,49 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>256</width>
+    <width>235</width>
     <height>256</height>
    </rect>
   </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>235</width>
+    <height>256</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>235</width>
+    <height>256</height>
+   </size>
+  </property>
+  <property name="contextMenuPolicy">
+   <enum>Qt::DefaultContextMenu</enum>
+  </property>
   <property name="windowTitle">
-   <string>Position</string>
+   <string>Position Sensor</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <property name="sizeConstraint">
-    <enum>QLayout::SetFixedSize</enum>
+    <enum>QLayout::SetDefaultConstraint</enum>
    </property>
    <item row="2" column="0">
     <widget class="QCheckBox" name="vCheck">
      <property name="text">
       <string>V</string>
      </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+     <attribute name="buttonGroup">
+      <string notr="true">buttonGroup_2</string>
+     </attribute>
     </widget>
    </item>
    <item row="9" column="0" colspan="3">
@@ -56,6 +83,9 @@
    </item>
    <item row="3" column="2">
     <widget class="QCheckBox" name="radCheck">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="text">
       <string>Rad</string>
      </property>
@@ -89,6 +119,9 @@
      <property name="text">
       <string>Voltage</string>
      </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
      <attribute name="buttonGroup">
       <string notr="true">buttonGroup</string>
      </attribute>
@@ -96,8 +129,14 @@
    </item>
    <item row="2" column="2">
     <widget class="QCheckBox" name="degCheck">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="text">
       <string>Degree</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
      </property>
      <attribute name="buttonGroup">
       <string notr="true">buttonGroup_3</string>
@@ -148,6 +187,9 @@
      <property name="text">
       <string>mV</string>
      </property>
+     <attribute name="buttonGroup">
+      <string notr="true">buttonGroup_2</string>
+     </attribute>
     </widget>
    </item>
    <item row="7" column="0">
@@ -180,7 +222,7 @@
       </widget>
      </item>
      <item row="2" column="1">
-      <widget class="QLineEdit" name="stepSizeLineEdit"/>
+      <widget class="QLineEdit" name="stepSizeXLineEdit"/>
      </item>
     </layout>
    </item>
@@ -194,7 +236,11 @@
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QLineEdit" name="yminLineEdit"/>
+      <widget class="QLineEdit" name="yminLineEdit">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+      </widget>
      </item>
      <item row="1" column="0">
       <widget class="QLabel" name="ymaxLabel">
@@ -204,7 +250,11 @@
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="QLineEdit" name="ymaxLineEdit"/>
+      <widget class="QLineEdit" name="ymaxLineEdit">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+      </widget>
      </item>
      <item row="2" column="0">
       <widget class="QLabel" name="stepSizeLabel_2">
@@ -214,7 +264,11 @@
       </widget>
      </item>
      <item row="2" column="1">
-      <widget class="QLineEdit" name="stepSizeLineEdit_2"/>
+      <widget class="QLineEdit" name="stepSizeYLineEdit">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
@@ -236,10 +290,10 @@
   <tabstop>radCheck</tabstop>
   <tabstop>xminLineEdit</tabstop>
   <tabstop>xmaxLineEdit</tabstop>
-  <tabstop>stepSizeLineEdit</tabstop>
+  <tabstop>stepSizeXLineEdit</tabstop>
   <tabstop>yminLineEdit</tabstop>
   <tabstop>ymaxLineEdit</tabstop>
-  <tabstop>stepSizeLineEdit_2</tabstop>
+  <tabstop>stepSizeYLineEdit</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources/>
@@ -278,8 +332,8 @@
   </connection>
  </connections>
  <buttongroups>
+  <buttongroup name="buttonGroup_3"/>
   <buttongroup name="buttonGroup"/>
   <buttongroup name="buttonGroup_2"/>
-  <buttongroup name="buttonGroup_3"/>
  </buttongroups>
 </ui>

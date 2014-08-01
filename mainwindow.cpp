@@ -5,12 +5,34 @@
 #include "dialr.h"
 #include "dialm.h"
 #include "dialogc.h"
+#include "dialtorplot.h"
+#include "dialposplot.h"
+#include "dialquit.h"
 #include <QFileDialog>
 #include <QFile>
 #include <QTextStream>
 #include <QAction>
 #include <QString>
 #include <QStringList>
+#include <QMessageBox>
+
+typedef short int (Registers::*sigetter)(void);
+sigetter sigetters[14];
+
+typedef bool (Registers::*bgetter)(void);
+bgetter bgetters[3];
+
+typedef double (Registers::*dgetter)(void);
+dgetter dgetters[12];
+
+typedef void (Registers::*sisetter)(short int);
+sisetter sisetters[14];
+
+typedef void (Registers::*bsetter)(bool);
+bsetter bsetters[3];
+
+typedef void (Registers::*dsetter)(double);
+dsetter dsetters[12];
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -18,10 +40,79 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    sigetters[0] = &Registers::getMonitoring;
+    sigetters[1] = &Registers::getSensoring;
+    sigetters[2] = &Registers::getTrajectory;
+    sigetters[3] = &Registers::getSensorPriority;
+    sigetters[4] = &Registers::getSensorPeriod;
+    sigetters[5] = &Registers::getControlPriority;
+    sigetters[6] = &Registers::getControlPeriod;
+    sigetters[7] = &Registers::getActuatorPriority;
+    sigetters[8] = &Registers::getActuatorPeriod;
+    sigetters[9] = &Registers::getSerialPriority;
+    sigetters[10] = &Registers::getSerialPeriod;
+    sigetters[11] = &Registers::getMode;
+    sigetters[12] = &Registers::getPosPlotUnit;
+    sigetters[13] = &Registers::getTorPlotUnit;
+
+    bgetters[0] = &Registers::getSensorEnable;
+    bgetters[1] = &Registers::getControlEnable;
+    bgetters[2] = &Registers::getActuatorEnable;
+
+    dgetters[0] = &Registers::getPosXMax;
+    dgetters[1] = &Registers::getPosYMax;
+    dgetters[2] = &Registers::getTorXMax;
+    dgetters[3] = &Registers::getTorYMax;
+    dgetters[4] = &Registers::getPosXMin;
+    dgetters[5] = &Registers::getPosYMin;
+    dgetters[6] = &Registers::getTorXMin;
+    dgetters[7] = &Registers::getTorXMin;
+    dgetters[8] = &Registers::getPosXStep;
+    dgetters[9] = &Registers::getTorXStep;
+    dgetters[10] = &Registers::getPosYStep;
+    dgetters[11] = &Registers::getPosYStep;
+
+    sisetters[0] = &Registers::setMonitoring;
+    sisetters[1] = &Registers::setSensoring;
+    sisetters[2] = &Registers::setTrajectory;
+    sisetters[3] = &Registers::setSensorPriority;
+    sisetters[4] = &Registers::setSensorPeriod;
+    sisetters[5] = &Registers::setControlPriority;
+    sisetters[6] = &Registers::setControlPeriod;
+    sisetters[7] = &Registers::setActuatorPriority;
+    sisetters[8] = &Registers::setActuatorPeriod;
+    sisetters[9] = &Registers::setSerialPriority;
+    sisetters[10] = &Registers::setSerialPeriod;
+    sisetters[11] = &Registers::setMode;
+    sisetters[12] = &Registers::setPosPlotUnit;
+    sisetters[13] = &Registers::setTorPlotUnit;
+
+    bsetters[0] = &Registers::setSensorEnable;
+    bsetters[1] = &Registers::setControlEnable;
+    bsetters[2] = &Registers::setActuatorEnable;
+
+    dsetters[0] = &Registers::setPosXMax;
+    dsetters[1] = &Registers::setPosYMax;
+    dsetters[2] = &Registers::setTorXMax;
+    dsetters[3] = &Registers::setTorYMax;
+    dsetters[4] = &Registers::setPosXMin;
+    dsetters[5] = &Registers::setPosYMin;
+    dsetters[6] = &Registers::setTorXMin;
+    dsetters[7] = &Registers::setTorXMin;
+    dsetters[8] = &Registers::setPosXStep;
+    dsetters[9] = &Registers::setTorXStep;
+    dsetters[10] = &Registers::setPosYStep;
+    dsetters[11] = &Registers::setPosYStep;
+
     ui->potPlot->setAxisScale(0,-20,20,5);
     ui->potPlot->setAxisScale(2,0,1,0.1);
     ui->torPlot->setAxisScale(0,-2,2,0.5);
     ui->torPlot->setAxisScale(2,0,1,0.1);
+    ui->potPlot->setAxisTitle(0,"Tension (V)");
+    ui->potPlot->setAxisTitle(2,"Time (s)");
+    ui->torPlot->setAxisTitle(0,"Tension (V)");
+    ui->torPlot->setAxisTitle(2,"Time (s)");
+    connect(ui->actionClose, SIGNAL(triggered()), this, SLOT(close_program()));
     connect(ui->actionSave_Current_Config, SIGNAL(triggered()), this, SLOT(save_config()));
     connect(ui->actionLoad_Config, SIGNAL(triggered()), this, SLOT(load_config()));
 }
@@ -31,6 +122,52 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::updatePlotCanvas(){
+    Config general_config;
+    ui->potPlot->setAxisScale(0,general_config.reg.getPosYMin(),general_config.reg.getPosYMax(),general_config.reg.getPosYStep());
+    ui->potPlot->setAxisScale(2,general_config.reg.getPosXMin(),general_config.reg.getPosXMax(),general_config.reg.getPosXStep());
+    ui->torPlot->setAxisScale(0,general_config.reg.getTorYMin(),general_config.reg.getTorYMax(),general_config.reg.getTorYStep());
+    ui->torPlot->setAxisScale(2,general_config.reg.getTorXMin(),general_config.reg.getTorXMax(),general_config.reg.getTorXStep());
+    switch (general_config.reg.getPosPlotUnit()){
+    case 0:
+        ui->potPlot->setAxisTitle(0, "Tension (V)");
+        break;
+    case 1:
+        ui->potPlot->setAxisTitle(0, "Tension (mV)");
+        break;
+    case 2:
+        ui->potPlot->setAxisTitle(0, "Angular Position (Deg)");
+        break;
+    case 3:
+        ui->potPlot->setAxisTitle(0, "Angular Position (Rad)");
+        break;
+    }
+    switch (general_config.reg.getTorPlotUnit()){
+    case 0:
+        ui->torPlot->setAxisTitle(0, "Tension (V)");
+        break;
+    case 1:
+        ui->torPlot->setAxisTitle(0, "Tension (mV)");
+        break;
+    case 2:
+        ui->torPlot->setAxisTitle(0, "Torque (N.m)");
+        break;
+    case 3:
+        ui->torPlot->setAxisTitle(0, "Torque (N.mm)");
+        break;
+    }
+    ui->potPlot->updateAxes();
+    ui->torPlot->updateAxes();
+}
+
+void MainWindow::close_program(){
+    DialQuit dialq;
+    dialq.setModal(true);
+    dialq.exec();
+    if(dialq.getAnswer())
+        this->close();
+}
+
 void MainWindow::save_config()
 {
     Config general_config;
@@ -38,36 +175,35 @@ void MainWindow::save_config()
     QFile file (fileName);
     if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
     {
-        statusBar()->showMessage("Could not open file to save");
+        statusBar()->showMessage("Operation Cancelled or could not open file to save");
         return;
     }
     QTextStream out(&file);
-    out<<"01 "<<QString::number(general_config.reg.getMonitoring())<<"\n";
-    out<<"02 "<<QString::number(general_config.reg.getSensoring())<<"\n";
-    out<<"03 "<<QString::number(general_config.reg.getTrajectory())<<"\n";
-    out<<"04 "<<QString::number(general_config.reg.getSensorEnable())<<"\n";
-    out<<"05 "<<QString::number(general_config.reg.getSensorPeriod())<<"\n";
-    out<<"06 "<<QString::number(general_config.reg.getSensorPriority())<<"\n";
-    out<<"07 "<<QString::number(general_config.reg.getControlEnable())<<"\n";
-    out<<"08 "<<QString::number(general_config.reg.getControlPeriod())<<"\n";
-    out<<"09 "<<QString::number(general_config.reg.getControlPriority())<<"\n";
-    out<<"10 "<<QString::number(general_config.reg.getActuatorEnable())<<"\n";
-    out<<"11 "<<QString::number(general_config.reg.getActuatorPeriod())<<"\n";
-    out<<"12 "<<QString::number(general_config.reg.getActuatorPriority())<<"\n";
-    out<<"13 "<<QString::number(general_config.reg.getSerialPeriod())<<"\n";
-    out<<"14 "<<QString::number(general_config.reg.getSerialPriority())<<"\n";
-    out<<"15 "<<QString::number(general_config.reg.getMode())<<"\n";
+
+    for (int i = 0; i < NSI; i++){
+        out<<"00 "<<i<<" "<<QString::number((general_config.reg.*sigetters[i])())<<"\n";
+    }
+
+    for (int i = 0; i < NB; i++){
+        out<<"01 "<<i<<" "<<QString::number((general_config.reg.*bgetters[i])())<<"\n";
+    }
+
+    for (int i = 0; i < ND; i++){
+        out<<"02 "<<i<<" "<<QString::number((general_config.reg.*dgetters[i])())<<"\n";
+    }
+
     file.close();
 }
 
 void MainWindow::load_config()
 {
+    int j;
     Config general_config;
     QString fileName = QFileDialog::getOpenFileName(this,"","","Impedance Control Config File (*.iccf)");
     QFile file (fileName);
     if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
-        statusBar()->showMessage("Could not open config file");
+        statusBar()->showMessage("Operation cancelled or could not open file to load");
         return;
     }
     QTextStream in(&file);
@@ -82,146 +218,44 @@ void MainWindow::load_config()
         }
         switch(list.first().toInt())
         {
-        case 1:
+        case 00:
             list.pop_front();
             if (list.empty())
             {
                 ui->statusBar->showMessage("Incomplete line in selected file");
                 return;
             }
-            general_config.reg.setMonitoring(list.first().toInt());
+            j = list.first().toInt();
+            list.pop_front();
+            (general_config.reg.*sisetters[j])(list.first().toInt());
             break;
-        case 2:
+        case 01:
             list.pop_front();
             if (list.empty())
             {
                 ui->statusBar->showMessage("Incomplete line in selected file");
                 return;
             }
-            general_config.reg.setSensoring(list.first().toInt());
+            j = list.first().toInt();
+            list.pop_front();
+            (general_config.reg.*bsetters[j])(list.first().toInt());
             break;
-        case 3:
+        case 02:
             list.pop_front();
             if (list.empty())
             {
                 ui->statusBar->showMessage("Incomplete line in selected file");
                 return;
             }
-            general_config.reg.setTrajectory(list.first().toInt());
-            break;
-        case 4:
+            j = list.first().toInt();
             list.pop_front();
-            if (list.empty())
-            {
-                ui->statusBar->showMessage("Incomplete line in selected file");
-                return;
-            }
-            general_config.reg.setSensorEnable(list.first().toInt());
-            break;
-        case 5:
-            list.pop_front();
-            if (list.empty())
-            {
-                ui->statusBar->showMessage("Incomplete line in selected file");
-                return;
-            }
-            general_config.reg.setSensorPeriod(list.first().toInt());
-            break;
-        case 6:
-            list.pop_front();
-            if (list.empty())
-            {
-                ui->statusBar->showMessage("Incomplete line in selected file");
-                return;
-            }
-            general_config.reg.setSensorPriority(list.first().toInt());
-            break;
-        case 7:
-            list.pop_front();
-            if (list.empty())
-            {
-                ui->statusBar->showMessage("Incomplete line in selected file");
-                return;
-            }
-            general_config.reg.setControlEnable(list.first().toInt());
-            break;
-        case 8:
-            list.pop_front();
-            if (list.empty())
-            {
-                ui->statusBar->showMessage("Incomplete line in selected file");
-                return;
-            }
-            general_config.reg.setControlPeriod(list.first().toInt());
-            break;
-        case 9:
-            list.pop_front();
-            if (list.empty())
-            {
-                ui->statusBar->showMessage("Incomplete line in selected file");
-                return;
-            }
-            general_config.reg.setControlPriority(list.first().toInt());
-            break;
-        case 10:
-            list.pop_front();
-            if (list.empty())
-            {
-                ui->statusBar->showMessage("Incomplete line in selected file");
-                return;
-            }
-            general_config.reg.setActuatorEnable(list.first().toInt());
-            break;
-        case 11:
-            list.pop_front();
-            if (list.empty())
-            {
-                ui->statusBar->showMessage("Incomplete line in selected file");
-                return;
-            }
-            general_config.reg.setActuatorPeriod(list.first().toInt());
-            break;
-        case 12:
-            list.pop_front();
-            if (list.empty())
-            {
-                ui->statusBar->showMessage("Incomplete line in selected file");
-                return;
-            }
-            general_config.reg.setActuatorPriority(list.first().toInt());
-            break;
-        case 13:
-            list.pop_front();
-            if (list.empty())
-            {
-                ui->statusBar->showMessage("Incomplete line in selected file");
-                return;
-            }
-            general_config.reg.setSerialPeriod(list.first().toInt());
-            break;
-        case 14:
-            list.pop_front();
-            if (list.empty())
-            {
-                ui->statusBar->showMessage("Incomplete line in selected file");
-                return;
-            }
-            general_config.reg.setSerialPriority(list.first().toInt());
-            break;
-        case 15:
-            list.pop_front();
-            if (list.empty())
-            {
-                ui->statusBar->showMessage("Incomplete line in selected file");
-                return;
-            }
-            general_config.reg.setMode(list.first().toInt());
+            (general_config.reg.*dsetters[j])(list.first().toDouble());
             break;
         }
         line = in.readLine();
-
     }
     file.close();
+    updatePlotCanvas();
 }
 
 void MainWindow::on_taskButton_clicked()
@@ -280,4 +314,20 @@ void MainWindow::on_torSaveButton_clicked()
 
     }
     file.close();
+}
+
+void MainWindow::on_torConfigButton_clicked()
+{
+    DialTorPlot torplotdialog;
+    torplotdialog.setModal(true);
+    torplotdialog.exec();
+    updatePlotCanvas();
+}
+
+void MainWindow::on_posConfigButton_clicked()
+{
+    DialPosPlot posplotdialog;
+    posplotdialog.setModal(true);
+    posplotdialog.exec();
+    updatePlotCanvas();
 }

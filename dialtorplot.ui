@@ -1,19 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>dialTorPlot</class>
- <widget class="QDialog" name="dialTorPlot">
+ <class>DialTorPlot</class>
+ <widget class="QDialog" name="DialTorPlot">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>256</width>
+    <width>235</width>
     <height>256</height>
    </rect>
   </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>235</width>
+    <height>256</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>235</width>
+    <height>256</height>
+   </size>
+  </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Torque Sensor</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <property name="sizeConstraint">
+    <enum>QLayout::SetDefaultConstraint</enum>
+   </property>
    <item row="0" column="0" colspan="5" alignment="Qt::AlignHCenter">
     <widget class="QLabel" name="label">
      <property name="sizePolicy">
@@ -38,7 +59,10 @@
     </widget>
    </item>
    <item row="2" column="3" colspan="2">
-    <widget class="QCheckBox" name="degCheck">
+    <widget class="QCheckBox" name="nmCheck">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="text">
       <string>N.m</string>
      </property>
@@ -65,7 +89,10 @@
     </widget>
    </item>
    <item row="3" column="3" colspan="2">
-    <widget class="QCheckBox" name="radCheck">
+    <widget class="QCheckBox" name="nmmCheck">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="text">
       <string>N.mm</string>
      </property>
@@ -93,6 +120,9 @@
      <property name="text">
       <string>V</string>
      </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
      <attribute name="buttonGroup">
       <string notr="true">buttonGroup_3</string>
      </attribute>
@@ -108,7 +138,11 @@
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QLineEdit" name="yminLineEdit_2"/>
+      <widget class="QLineEdit" name="yminLineEdit">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+      </widget>
      </item>
      <item row="1" column="0">
       <widget class="QLabel" name="ymaxLabel_2">
@@ -118,7 +152,11 @@
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="QLineEdit" name="ymaxLineEdit_2"/>
+      <widget class="QLineEdit" name="ymaxLineEdit">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+      </widget>
      </item>
      <item row="2" column="0">
       <widget class="QLabel" name="stepSizeLabel_3">
@@ -128,7 +166,11 @@
       </widget>
      </item>
      <item row="2" column="1">
-      <widget class="QLineEdit" name="stepSizeLineEdit_3"/>
+      <widget class="QLineEdit" name="stepSizeYLineEdit">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
@@ -142,7 +184,7 @@
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QLineEdit" name="xminLineEdit_2"/>
+      <widget class="QLineEdit" name="xminLineEdit"/>
      </item>
      <item row="1" column="0">
       <widget class="QLabel" name="xmaxLabel_2">
@@ -152,7 +194,7 @@
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="QLineEdit" name="xmaxLineEdit_2"/>
+      <widget class="QLineEdit" name="xmaxLineEdit"/>
      </item>
      <item row="2" column="0">
       <widget class="QLabel" name="stepSizeLabel_4">
@@ -162,7 +204,7 @@
       </widget>
      </item>
      <item row="2" column="1">
-      <widget class="QLineEdit" name="stepSizeLineEdit_4"/>
+      <widget class="QLineEdit" name="stepSizeXLineEdit"/>
      </item>
     </layout>
    </item>
@@ -193,6 +235,9 @@
     <widget class="QRadioButton" name="vButton">
      <property name="text">
       <string>Voltage</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
      </property>
      <attribute name="buttonGroup">
       <string notr="true">buttonGroup_2</string>
@@ -232,60 +277,21 @@
   <tabstop>vCheck</tabstop>
   <tabstop>mvCheck</tabstop>
   <tabstop>physButton</tabstop>
-  <tabstop>degCheck</tabstop>
-  <tabstop>radCheck</tabstop>
-  <tabstop>xminLineEdit_2</tabstop>
-  <tabstop>xmaxLineEdit_2</tabstop>
-  <tabstop>stepSizeLineEdit_4</tabstop>
-  <tabstop>yminLineEdit_2</tabstop>
-  <tabstop>ymaxLineEdit_2</tabstop>
-  <tabstop>stepSizeLineEdit_3</tabstop>
-  <tabstop>buttonBox</tabstop>
-  <tabstop>yminLineEdit</tabstop>
-  <tabstop>ymaxLineEdit</tabstop>
-  <tabstop>stepSizeLineEdit_2</tabstop>
+  <tabstop>nmCheck</tabstop>
+  <tabstop>nmmCheck</tabstop>
   <tabstop>xminLineEdit</tabstop>
   <tabstop>xmaxLineEdit</tabstop>
-  <tabstop>stepSizeLineEdit</tabstop>
+  <tabstop>stepSizeXLineEdit</tabstop>
+  <tabstop>yminLineEdit</tabstop>
+  <tabstop>ymaxLineEdit</tabstop>
+  <tabstop>stepSizeYLineEdit</tabstop>
+  <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources/>
- <connections>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>accepted()</signal>
-   <receiver>dialTorPlot</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>157</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>rejected()</signal>
-   <receiver>dialTorPlot</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>286</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup"/>
   <buttongroup name="buttonGroup_2"/>
   <buttongroup name="buttonGroup_3"/>
+  <buttongroup name="buttonGroup"/>
  </buttongroups>
 </ui>

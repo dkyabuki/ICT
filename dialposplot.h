@@ -15,6 +15,19 @@ public:
     explicit DialPosPlot(QWidget *parent = 0);
     ~DialPosPlot();
 
+private slots:
+    void on_physButton_clicked();
+
+    void on_vButton_clicked();
+
+    void on_vButton_toggled(bool checked);
+
+    void on_physButton_toggled(bool checked);
+
+    void on_buttonBox_rejected();
+
+    void on_buttonBox_accepted();
+
 private:
     Ui::DialPosPlot *ui;
 };

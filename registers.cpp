@@ -5,28 +5,45 @@ Registers::Registers() //inicializa registros na configuração padrão
     MONITORING = 0;
     SENSORING = 0;
     TRAJECTORY = 0;
-
     SENSOR_PRIORITY = 100;
     SENSOR_PERIOD = 2;
-    SENSOR_ENABLE = 1;
-
     CONTROL_PRIORITY = 100;
     CONTROL_PERIOD = 2;
-    CONTROL_ENABLE = 1;
-
     ACTUATOR_PRIORITY = 100;
     ACTUATOR_PERIOD = 2;
-    ACTUATOR_ENABLE = 1;
-
     SERIAL_PRIORITY = 100;
     SERIAL_PERIOD = 2;
+    MODE = 0;
+    POS_PLOT_UNIT = 0;
+    TOR_PLOT_UNIT = 0;
 
-    MODE = 0; //position
+    SENSOR_ENABLE = 1;
+    CONTROL_ENABLE = 1;
+    ACTUATOR_ENABLE = 1;
+
+    POS_X_MAX = 1;
+    POS_Y_MAX = 20;
+    TOR_X_MAX = 1;
+    TOR_Y_MAX = 2;
+    POS_X_MIN = 0;
+    POS_Y_MIN = -20;
+    TOR_X_MIN = 0;
+    TOR_Y_MIN = -2;
+    POS_X_STEP = 0.1;
+    TOR_X_STEP = 0.1;
+    POS_Y_STEP = 5;
+    TOR_Y_STEP = 0.5;
+
+
 }
 
 Registers::~Registers()
 {
 }
+
+/*************************************/
+/*              GETTERS              */
+/*************************************/
 
 short int Registers::getMonitoring ()
 {
@@ -127,6 +144,42 @@ double Registers::getTorYMax(){
     return(TOR_Y_MAX);
 }
 
+double Registers::getPosXMin(){
+    return(POS_X_MIN);
+}
+
+double Registers::getPosYMin(){
+    return(POS_Y_MIN);
+}
+
+double Registers::getTorXMin(){
+    return(TOR_X_MIN);
+}
+
+double Registers::getTorYMin(){
+    return(TOR_Y_MIN);
+}
+
+double Registers::getPosXStep(){
+    return(POS_X_STEP);
+}
+
+double Registers::getTorXStep(){
+    return(TOR_X_STEP);
+}
+
+double Registers::getPosYStep(){
+    return(POS_Y_STEP);
+}
+
+double Registers::getTorYStep(){
+    return(TOR_Y_STEP);
+}
+
+/*************************************/
+/*              SETTERS              */
+/*************************************/
+
 void Registers::setMonitoring (short int v){
     MONITORING = v;
 }
@@ -223,4 +276,36 @@ void Registers::setTorXMax(double v){
 
 void Registers::setTorYMax(double v){
     TOR_Y_MAX = v;
+}
+
+void Registers::setPosXMin(double v){
+    POS_X_MIN = v;
+}
+
+void Registers::setPosYMin(double v){
+    POS_Y_MIN = v;
+}
+
+void Registers::setTorXMin(double v){
+    TOR_X_MIN = v;
+}
+
+void Registers::setTorYMin(double v){
+    TOR_Y_MIN = v;
+}
+
+void Registers::setPosXStep(double v){
+    POS_X_STEP = v;
+}
+
+void Registers::setTorXStep(double v){
+    TOR_X_STEP = v;
+}
+
+void Registers::setPosYStep(double v){
+    POS_Y_STEP = v;
+}
+
+void Registers::setTorYStep(double v){
+    TOR_Y_STEP = v;
 }
