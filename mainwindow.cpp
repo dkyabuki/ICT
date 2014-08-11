@@ -1,20 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "config.h"
-#include "dialt.h"
-#include "dialr.h"
-#include "dialm.h"
-#include "dialogc.h"
-#include "dialtorplot.h"
-#include "dialposplot.h"
-#include "dialquit.h"
-#include <QFileDialog>
-#include <QFile>
-#include <QTextStream>
-#include <QAction>
-#include <QString>
-#include <QStringList>
-#include <QMessageBox>
+
 
 typedef short int (Registers::*sigetter)(void);
 sigetter sigetters[14];
@@ -115,6 +101,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionClose, SIGNAL(triggered()), this, SLOT(close_program()));
     connect(ui->actionSave_Current_Config, SIGNAL(triggered()), this, SLOT(save_config()));
     connect(ui->actionLoad_Config, SIGNAL(triggered()), this, SLOT(load_config()));
+    timepot = 0;
+    timetor = 0;
 }
 
 MainWindow::~MainWindow()
@@ -330,4 +318,44 @@ void MainWindow::on_posConfigButton_clicked()
     posplotdialog.setModal(true);
     posplotdialog.exec();
     updatePlotCanvas();
+}
+
+void MainWindow::on_potPlot_itemAttached(QwtPlotItem *plotItem, bool on)
+{
+    //ui->potPlot->replot();
+}
+
+void MainWindow::on_torPlot_itemAttached(QwtPlotItem *plotItem, bool on)
+{
+    ui->torPlot->replot();
+}
+
+void MainWindow::on_pushButton_clicked()
+{
+    Config genconf;
+    double ypos, ytor;
+    QwtPlotMarker *pos = new QwtPlotMarker();
+    QwtPlotMarker *tor = new QwtPlotMarker();
+    pos->setSymbol( new QwtSymbol( QwtSymbol::Diamond, Qt::red, Qt::NoPen, QSize(5,5) ) );
+    tor->setSymbol( new QwtSymbol( QwtSymbol::Diamond, Qt::black, Qt::NoPen, QSize(5,5) ) );
+    ypos = (qrand()%((int)((genconf.reg.getPosYMax()*100 + 100) - genconf.reg.getPosYMin()*100)) + 100*genconf.reg.getPosYMin())/100.0;
+    ytor = (qrand()%((int)((genconf.reg.getTorYMax()*100 + 100) - genconf.reg.getTorYMin()*100)) + 100*genconf.reg.getTorYMin())/100.0;
+    pos->setValue(QPointF(timepot, ypos));
+    tor->setValue(QPointF(timetor, ytor));
+    timepot += 0.002;
+    timetor += 0.002;
+    pos->attach(ui->potPlot);
+    tor->attach(ui->torPlot);
+    if (timepot > genconf.reg.getPosXMax())
+    {
+        timepot -= 0.002;
+        timepot -= genconf.reg.getPosXMax();
+        ui->potPlot->detachItems(QwtPlotItem::Rtti_PlotItem, true);
+    }
+    if (timetor > genconf.reg.getTorXMax())
+    {
+        timetor -= 0.002;
+        timetor -= genconf.reg.getTorXMax();
+        ui->torPlot->detachItems(QwtPlotItem::Rtti_PlotItem, true);
+    }
 }

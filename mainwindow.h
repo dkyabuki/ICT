@@ -2,6 +2,24 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include "config.h"
+#include "dialt.h"
+#include "dialr.h"
+#include "dialm.h"
+#include "dialogc.h"
+#include "dialtorplot.h"
+#include "dialposplot.h"
+#include "dialquit.h"
+#include <QFileDialog>
+#include <QFile>
+#include <QTextStream>
+#include <QAction>
+#include <QString>
+#include <QStringList>
+#include <QMessageBox>
+#include <qwt_plot_marker.h>
+#include <qwt_symbol.h>
+#include <qwt_plot_item.h>
 
 namespace Ui {
 class MainWindow;
@@ -38,7 +56,14 @@ private slots:
 
     void on_posConfigButton_clicked();
 
+    void on_potPlot_itemAttached(QwtPlotItem *plotItem, bool on);
+
+    void on_torPlot_itemAttached(QwtPlotItem *plotItem, bool on);
+
+    void on_pushButton_clicked();
+    
 private:
+    double timepot, timetor;
     void updatePlotCanvas();
     Ui::MainWindow *ui;
 };
