@@ -10,6 +10,7 @@
 #include "dialtorplot.h"
 #include "dialposplot.h"
 #include "dialquit.h"
+#include "sequenceplot.h"
 #include <QFileDialog>
 #include <QFile>
 #include <QTextStream>
@@ -55,10 +56,6 @@ private slots:
     void on_torConfigButton_clicked();
 
     void on_posConfigButton_clicked();
-
-    void on_potPlot_itemAttached(QwtPlotItem *plotItem, bool on);
-
-    void on_torPlot_itemAttached(QwtPlotItem *plotItem, bool on);
 
     void on_pushButton_clicked();
     

@@ -5,47 +5,46 @@
 #include <qwt_interval.h>
 #include <qwt_system_clock.h>
 
-//class QwtPlotCurve;
-//class QwtPlotMarker;
-//class QwtPlotDirectPainter;
+class QwtPlotCurve;
+class QwtPlotDirectPainter;
 
-//class Plot : public QwtPlot
-//{
-//    Q_OBJECT
+class Plot : public QwtPlot
+{
+    Q_OBJECT
 
-//public:
-//    Plot( QWidget * = NULL );
-//    virtual ~Plot();
+public:
+    Plot( QWidget * = NULL );
+    virtual ~Plot();
 
-//    void start();
+    void start();
 
-//    virtual void replot();
+    virtual void replot();
 
-//    virtual bool eventFilter( QObject *, QEvent * );
+    virtual bool eventFilter( QObject *, QEvent * );
 
-//public Q_SLOTS:
-//    void set_interval_length( double );
+public Q_SLOTS:
+    void set_interval_length( double );
 
-//protected:
+protected:
 
-//    virtual void showEvent( QShowEvent * );
-//    virtual void resizeEvent( QResizeEvent * );
-//    virtual void timerEvent( QTimerEvent * );
+    virtual void showEvent( QShowEvent * );
+    virtual void resizeEvent( QResizeEvent * );
+    virtual void timerEvent( QTimerEvent * );
 
-//private:
-//    void updateCurve();
-//    void incrementInterval();
+private:
+    void updateCurve();
+    void incrementInterval();
 
-//    QwtPlotMarker *d_origin;
-//    QwtPlotCurve *d_curve;
-//    int d_paintedPoints;
+    QwtPlotMarker *d_origin;
+    QwtPlotCurve *d_curve;
+    int d_paintedPoints;
 
-//    QwtPlotDirectPainter *d_directPainter;
+    QwtPlotDirectPainter *d_directPainter;
 
-//    QwtInterval d_interval;
-//    int d_timerId;
+    QwtInterval d_interval;
+    int d_timerId;
 
-//    QwtSystemClock d_clock;
-//};
+    QwtSystemClock d_clock;
+};
 
 #endif // PLOT_H

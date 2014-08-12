@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-
+#include <qmath.h>
+#include <QtSerialPort/QSerialPort>
 
 typedef short int (Registers::*sigetter)(void);
 sigetter sigetters[14];
@@ -89,7 +90,6 @@ MainWindow::MainWindow(QWidget *parent) :
     dsetters[9] = &Registers::setTorXStep;
     dsetters[10] = &Registers::setPosYStep;
     dsetters[11] = &Registers::setPosYStep;
-
     ui->potPlot->setAxisScale(0,-20,20,5);
     ui->potPlot->setAxisScale(2,0,1,0.1);
     ui->torPlot->setAxisScale(0,-2,2,0.5);
@@ -320,42 +320,28 @@ void MainWindow::on_posConfigButton_clicked()
     updatePlotCanvas();
 }
 
-void MainWindow::on_potPlot_itemAttached(QwtPlotItem *plotItem, bool on)
-{
-    //ui->potPlot->replot();
-}
-
-void MainWindow::on_torPlot_itemAttached(QwtPlotItem *plotItem, bool on)
-{
-    ui->torPlot->replot();
-}
-
 void MainWindow::on_pushButton_clicked()
 {
     Config genconf;
     double ypos, ytor;
-    QwtPlotMarker *pos = new QwtPlotMarker();
-    QwtPlotMarker *tor = new QwtPlotMarker();
-    pos->setSymbol( new QwtSymbol( QwtSymbol::Diamond, Qt::red, Qt::NoPen, QSize(5,5) ) );
-    tor->setSymbol( new QwtSymbol( QwtSymbol::Diamond, Qt::black, Qt::NoPen, QSize(5,5) ) );
-    ypos = (qrand()%((int)((genconf.reg.getPosYMax()*100 + 100) - genconf.reg.getPosYMin()*100)) + 100*genconf.reg.getPosYMin())/100.0;
-    ytor = (qrand()%((int)((genconf.reg.getTorYMax()*100 + 100) - genconf.reg.getTorYMin()*100)) + 100*genconf.reg.getTorYMin())/100.0;
-    pos->setValue(QPointF(timepot, ypos));
-    tor->setValue(QPointF(timetor, ytor));
+//    ypos = (qrand()%((int)((genconf.reg.getPosYMax()*100 + 100) - genconf.reg.getPosYMin()*100)) + 100*genconf.reg.getPosYMin())/100.0;
+//    ytor = (qrand()%((int)((genconf.reg.getTorYMax()*100 + 100) - genconf.reg.getTorYMin()*100)) + 100*genconf.reg.getTorYMin())/100.0;
+    ypos = ((genconf.reg.getPosYMax() - genconf.reg.getPosYMin())/2)*qSin(timepot*25);
+    ytor = ((genconf.reg.getTorYMax() - genconf.reg.getTorYMin())/2)*qSin(timetor*25);
     timepot += 0.002;
     timetor += 0.002;
-    pos->attach(ui->potPlot);
-    tor->attach(ui->torPlot);
+    ui->potPlot->appendPoint(QPointF(timepot, ypos));
+    ui->torPlot->appendPoint(QPointF(timetor, ytor));
     if (timepot > genconf.reg.getPosXMax())
     {
         timepot -= 0.002;
         timepot -= genconf.reg.getPosXMax();
-        ui->potPlot->detachItems(QwtPlotItem::Rtti_PlotItem, true);
+        ui->potPlot->clearPoints();
     }
     if (timetor > genconf.reg.getTorXMax())
     {
         timetor -= 0.002;
         timetor -= genconf.reg.getTorXMax();
-        ui->torPlot->detachItems(QwtPlotItem::Rtti_PlotItem, true);
+        ui->torPlot->clearPoints();
     }
 }
