@@ -9,15 +9,14 @@ DialTorPlot::DialTorPlot(QWidget *parent) :
 {
     Qt::WindowFlags flags(Qt::WindowTitleHint);
     this->setWindowFlags(flags);
-    Config gen_config;
     ui->setupUi(this);
-    ui->xmaxLineEdit->setText(QString::number(gen_config.reg.getTorXMax()));
-    ui->xminLineEdit->setText(QString::number(gen_config.reg.getTorXMin()));
-    ui->ymaxLineEdit->setText(QString::number(gen_config.reg.getTorYMax()));
-    ui->yminLineEdit->setText(QString::number(gen_config.reg.getTorYMin()));
-    ui->stepSizeXLineEdit->setText(QString::number(gen_config.reg.getTorXStep()));
-    ui->stepSizeYLineEdit->setText(QString::number(gen_config.reg.getTorYStep()));
-    int unit = gen_config.reg.getTorPlotUnit();
+    ui->xmaxLineEdit->setText(QString::number(Config::reg.getTorXMax()));
+    ui->xminLineEdit->setText(QString::number(Config::reg.getTorXMin()));
+    ui->ymaxLineEdit->setText(QString::number(Config::reg.getTorYMax()));
+    ui->yminLineEdit->setText(QString::number(Config::reg.getTorYMin()));
+    ui->stepSizeXLineEdit->setText(QString::number(Config::reg.getTorXStep()));
+    ui->stepSizeYLineEdit->setText(QString::number(Config::reg.getTorYStep()));
+    int unit = Config::reg.getTorPlotUnit();
     if(unit <= 1){
         ui->vButton->setChecked(true);
         if(unit == 0){
@@ -83,25 +82,24 @@ void DialTorPlot::on_buttonBox_rejected()
 
 void DialTorPlot::on_buttonBox_accepted()
 {
-    Config gen_conf;
     if(ui->vButton->isChecked()){
         if(ui->vCheck->isChecked()){
-            gen_conf.reg.setTorPlotUnit(0);
+            Config::reg.setTorPlotUnit(0);
         } else {
-            gen_conf.reg.setTorPlotUnit(1);
+            Config::reg.setTorPlotUnit(1);
         }
     } else {
         if(ui->nmCheck->isChecked()){
-            gen_conf.reg.setTorPlotUnit(2);
+            Config::reg.setTorPlotUnit(2);
         } else {
-            gen_conf.reg.setTorPlotUnit(3);
+            Config::reg.setTorPlotUnit(3);
         }
     }
-    gen_conf.reg.setTorXMax(ui->xmaxLineEdit->text().toDouble());
-    gen_conf.reg.setTorYMax(ui->ymaxLineEdit->text().toDouble());
-    gen_conf.reg.setTorXMin(ui->xminLineEdit->text().toDouble());
-    gen_conf.reg.setTorYMin(ui->yminLineEdit->text().toDouble());
-    gen_conf.reg.setTorXStep(ui->stepSizeXLineEdit->text().toDouble());
-    gen_conf.reg.setTorYStep(ui->stepSizeYLineEdit->text().toDouble());
+    Config::reg.setTorXMax(ui->xmaxLineEdit->text().toDouble());
+    Config::reg.setTorYMax(ui->ymaxLineEdit->text().toDouble());
+    Config::reg.setTorXMin(ui->xminLineEdit->text().toDouble());
+    Config::reg.setTorYMin(ui->yminLineEdit->text().toDouble());
+    Config::reg.setTorXStep(ui->stepSizeXLineEdit->text().toDouble());
+    Config::reg.setTorYStep(ui->stepSizeYLineEdit->text().toDouble());
     this->close();
 }

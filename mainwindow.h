@@ -11,6 +11,7 @@
 #include "dialposplot.h"
 #include "dialquit.h"
 #include "sequenceplot.h"
+#include "samplingthread.h"
 #include <QFileDialog>
 #include <QFile>
 #include <QTextStream>
@@ -41,6 +42,14 @@ private slots:
 
     void load_config();
 
+    void append_pos(const QPointF &point);
+
+    void append_ext(const QPointF &point);
+
+    void control_signal_emitted(bool on);
+
+    void control_pause_signal_emitted(bool on);
+
     void on_taskButton_clicked();
 
     void on_convButton_clicked();
@@ -59,10 +68,23 @@ private slots:
 
     void on_pushButton_clicked();
     
+    void on_controlStartButton_clicked();
+
+    void on_controlPauseButton_clicked();
+
+    void on_controlStopButton_clicked();
+
+signals:
+    void on_controlStartup(bool on);
+
+    void on_controlPause(bool on);
+
 private:
+    SamplingThread *samplingThread;
     double timepot, timetor;
     void updatePlotCanvas();
     Ui::MainWindow *ui;
+    bool running;
 };
 
 #endif // MAINWINDOW_H

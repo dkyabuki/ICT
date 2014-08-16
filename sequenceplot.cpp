@@ -6,33 +6,7 @@
 #include <qwt_plot_directpainter.h>
 #include <qwt_painter.h>
 #include <qpaintengine.h>
-
-class PlotData : public QwtArraySeriesData<QPointF>
-{
-public:
-    PlotData()
-    {
-    }
-
-    virtual QRectF boundingRect() const
-    {
-        if ( d_boundingRect.width() < 0.0 )
-        d_boundingRect = qwtBoundingRect( *this );
-        return d_boundingRect;
-    }
-
-    inline void append( const QPointF &point )
-    {
-        d_samples += point;
-    }
-
-    void clear()
-    {
-        d_samples.clear();
-        d_samples.squeeze();
-        d_boundingRect = QRectF( 0.0, 0.0, -1.0, -1.0 );
-    }
-};
+#include "plotdata.h"
 
 SequencePlot::SequencePlot(QWidget *parent):QwtPlot(parent),curve(NULL)
 {
@@ -83,7 +57,6 @@ void SequencePlot::appendPoint(const QPointF &point)
 
         dPainter->setClipRegion( clipRegion );
     }
-
     dPainter->drawSeries( curve, data->size() - 1, data->size() - 1 );
 }
 
@@ -99,8 +72,8 @@ void SequencePlot::showSymbols( bool on )
     if ( on )
     {
         curve->setStyle( QwtPlotCurve::NoCurve );
-        curve->setSymbol( new QwtSymbol( QwtSymbol::XCross,
-            Qt::NoBrush, QPen( Qt::black ), QSize( 4, 4 ) ) );
+        curve->setSymbol( new QwtSymbol( QwtSymbol::Star1,
+            Qt::NoBrush, QPen( Qt::black ), QSize( 2, 2 ) ) );
     }
     else
     {
@@ -110,4 +83,9 @@ void SequencePlot::showSymbols( bool on )
     }
 
     replot();
+}
+
+int SequencePlot::size()
+{
+    return(curve->dataSize());
 }

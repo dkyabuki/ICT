@@ -21,6 +21,7 @@ public:
 
     void appendPoint(const QPointF &);
     void clearPoints();
+    int size();
 
 public Q_SLOTS:
     void showSymbols(bool);

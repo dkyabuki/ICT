@@ -101,22 +101,30 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionClose, SIGNAL(triggered()), this, SLOT(close_program()));
     connect(ui->actionSave_Current_Config, SIGNAL(triggered()), this, SLOT(save_config()));
     connect(ui->actionLoad_Config, SIGNAL(triggered()), this, SLOT(load_config()));
+    connect(this, SIGNAL(on_controlStartup(bool)), this, SLOT(control_signal_emitted(bool)),Qt::DirectConnection);
+    connect(this, SIGNAL(on_controlPause(bool)), this, SLOT(control_pause_signal_emitted(bool)),Qt::DirectConnection);
     timepot = 0;
     timetor = 0;
+    samplingThread = new SamplingThread(this);
+    connect(samplingThread, SIGNAL(pointAppendedPot(QPointF)), this, SLOT(append_pos(const QPointF)),Qt::QueuedConnection);
+    connect(samplingThread, SIGNAL(pointAppendedExt(QPointF)), this, SLOT(append_ext(const QPointF)),Qt::QueuedConnection);
+    connect(this, SIGNAL(on_controlPause(bool)),samplingThread,SLOT(pause(bool)),Qt::QueuedConnection);
+    emit on_controlStartup(false);
+    running = false;
 }
 
 MainWindow::~MainWindow()
 {
+    samplingThread->stop();
     delete ui;
 }
 
 void MainWindow::updatePlotCanvas(){
-    Config general_config;
-    ui->potPlot->setAxisScale(0,general_config.reg.getPosYMin(),general_config.reg.getPosYMax(),general_config.reg.getPosYStep());
-    ui->potPlot->setAxisScale(2,general_config.reg.getPosXMin(),general_config.reg.getPosXMax(),general_config.reg.getPosXStep());
-    ui->torPlot->setAxisScale(0,general_config.reg.getTorYMin(),general_config.reg.getTorYMax(),general_config.reg.getTorYStep());
-    ui->torPlot->setAxisScale(2,general_config.reg.getTorXMin(),general_config.reg.getTorXMax(),general_config.reg.getTorXStep());
-    switch (general_config.reg.getPosPlotUnit()){
+    ui->potPlot->setAxisScale(0,Config::reg.getPosYMin(),Config::reg.getPosYMax(),Config::reg.getPosYStep());
+    ui->potPlot->setAxisScale(2,Config::reg.getPosXMin(),Config::reg.getPosXMax(),Config::reg.getPosXStep());
+    ui->torPlot->setAxisScale(0,Config::reg.getTorYMin(),Config::reg.getTorYMax(),Config::reg.getTorYStep());
+    ui->torPlot->setAxisScale(2,Config::reg.getTorXMin(),Config::reg.getTorXMax(),Config::reg.getTorXStep());
+    switch (Config::reg.getPosPlotUnit()){
     case 0:
         ui->potPlot->setAxisTitle(0, "Tension (V)");
         break;
@@ -130,7 +138,7 @@ void MainWindow::updatePlotCanvas(){
         ui->potPlot->setAxisTitle(0, "Angular Position (Rad)");
         break;
     }
-    switch (general_config.reg.getTorPlotUnit()){
+    switch (Config::reg.getTorPlotUnit()){
     case 0:
         ui->torPlot->setAxisTitle(0, "Tension (V)");
         break;
@@ -146,6 +154,64 @@ void MainWindow::updatePlotCanvas(){
     }
     ui->potPlot->updateAxes();
     ui->torPlot->updateAxes();
+    ui->potPlot->replot();
+    ui->torPlot->replot();
+}
+
+void MainWindow::append_pos(const QPointF &point)
+{
+    ui->potPlot->appendPoint(point);
+    if((double)point.x()>ui->potPlot->axisInterval(2).maxValue())
+    {
+        double min = ui->potPlot->axisInterval(2).maxValue();
+        double max = ui->potPlot->axisInterval(2).maxValue()*2 - ui->potPlot->axisInterval(2).minValue();
+        ui->potPlot->setAxisScale(2, min, max, Config::reg.getPosXStep());
+        ui->potPlot->replot();
+    }
+}
+
+void MainWindow::append_ext(const QPointF &point)
+{
+    ui->torPlot->appendPoint(point);
+    if((double)point.x()>ui->torPlot->axisInterval(2).maxValue())
+    {
+        double min = ui->torPlot->axisInterval(2).maxValue();
+        double max = ui->torPlot->axisInterval(2).maxValue()*2 - ui->torPlot->axisInterval(2).minValue();
+        ui->torPlot->setAxisScale(2, min, max, Config::reg.getTorXStep());
+        ui->torPlot->replot();
+    }
+}
+
+void MainWindow::control_signal_emitted(bool on)
+{
+    ui->connButton->setEnabled(!on);
+    ui->controlStartButton->setEnabled(!on);
+    ui->convButton->setEnabled(!on);
+    ui->driverConfigButton->setEnabled(!on);
+    ui->driverPlayPauseButton->setEnabled(!on);
+    ui->modeButton->setEnabled(!on);
+    ui->posConfigButton->setEnabled(!on);
+    ui->torConfigButton->setEnabled(!on);
+    ui->posSaveButton->setEnabled(!on);
+    ui->torSaveButton->setEnabled(!on);
+    ui->pushButton->setEnabled(!on);
+    ui->regButton->setEnabled(!on);
+    ui->taskButton->setEnabled(!on);
+    ui->controlPauseButton->setEnabled(on);
+    ui->controlStopButton->setEnabled(on);
+    ui->menuBar->setEnabled(!on);
+    running = on;
+}
+
+void MainWindow::control_pause_signal_emitted(bool on)
+{
+    ui->posConfigButton->setEnabled(on);
+    ui->torConfigButton->setEnabled(on);
+    ui->posSaveButton->setEnabled(on);
+    ui->torSaveButton->setEnabled(on);
+    ui->controlStopButton->setEnabled(!on);
+    ui->controlPauseButton->setText(on? "Continue":"Pause");
+    running = !on;
 }
 
 void MainWindow::close_program(){
@@ -158,7 +224,6 @@ void MainWindow::close_program(){
 
 void MainWindow::save_config()
 {
-    Config general_config;
     QString fileName = QFileDialog::getSaveFileName(this,"","","Impedance Control Config File (*.iccf)");
     QFile file (fileName);
     if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
@@ -169,15 +234,15 @@ void MainWindow::save_config()
     QTextStream out(&file);
 
     for (int i = 0; i < NSI; i++){
-        out<<"00 "<<i<<" "<<QString::number((general_config.reg.*sigetters[i])())<<"\n";
+        out<<"00 "<<i<<" "<<QString::number((Config::reg.*sigetters[i])())<<"\n";
     }
 
     for (int i = 0; i < NB; i++){
-        out<<"01 "<<i<<" "<<QString::number((general_config.reg.*bgetters[i])())<<"\n";
+        out<<"01 "<<i<<" "<<QString::number((Config::reg.*bgetters[i])())<<"\n";
     }
 
     for (int i = 0; i < ND; i++){
-        out<<"02 "<<i<<" "<<QString::number((general_config.reg.*dgetters[i])())<<"\n";
+        out<<"02 "<<i<<" "<<QString::number((Config::reg.*dgetters[i])())<<"\n";
     }
 
     file.close();
@@ -186,7 +251,6 @@ void MainWindow::save_config()
 void MainWindow::load_config()
 {
     int j;
-    Config general_config;
     QString fileName = QFileDialog::getOpenFileName(this,"","","Impedance Control Config File (*.iccf)");
     QFile file (fileName);
     if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -215,7 +279,7 @@ void MainWindow::load_config()
             }
             j = list.first().toInt();
             list.pop_front();
-            (general_config.reg.*sisetters[j])(list.first().toInt());
+            (Config::reg.*sisetters[j])(list.first().toInt());
             break;
         case 01:
             list.pop_front();
@@ -226,7 +290,7 @@ void MainWindow::load_config()
             }
             j = list.first().toInt();
             list.pop_front();
-            (general_config.reg.*bsetters[j])(list.first().toInt());
+            (Config::reg.*bsetters[j])(list.first().toInt());
             break;
         case 02:
             list.pop_front();
@@ -237,7 +301,7 @@ void MainWindow::load_config()
             }
             j = list.first().toInt();
             list.pop_front();
-            (general_config.reg.*dsetters[j])(list.first().toDouble());
+            (Config::reg.*dsetters[j])(list.first().toDouble());
             break;
         }
         line = in.readLine();
@@ -322,26 +386,50 @@ void MainWindow::on_posConfigButton_clicked()
 
 void MainWindow::on_pushButton_clicked()
 {
-    Config genconf;
     double ypos, ytor;
-//    ypos = (qrand()%((int)((genconf.reg.getPosYMax()*100 + 100) - genconf.reg.getPosYMin()*100)) + 100*genconf.reg.getPosYMin())/100.0;
-//    ytor = (qrand()%((int)((genconf.reg.getTorYMax()*100 + 100) - genconf.reg.getTorYMin()*100)) + 100*genconf.reg.getTorYMin())/100.0;
-    ypos = ((genconf.reg.getPosYMax() - genconf.reg.getPosYMin())/2)*qSin(timepot*25);
-    ytor = ((genconf.reg.getTorYMax() - genconf.reg.getTorYMin())/2)*qSin(timetor*25);
+//    ypos = (qrand()%((int)((Config::reg.getPosYMax()*100 + 100) - Config::reg.getPosYMin()*100)) + 100*Config::reg.getPosYMin())/100.0;
+//    ytor = (qrand()%((int)((Config::reg.getTorYMax()*100 + 100) - Config::reg.getTorYMin()*100)) + 100*Config::reg.getTorYMin())/100.0;
+    ypos = ((Config::reg.getPosYMax() - Config::reg.getPosYMin())/2)*qSin(timepot*25)+(Config::reg.getPosYMax() + Config::reg.getPosYMin())/2;
+    ytor = ((Config::reg.getTorYMax() - Config::reg.getTorYMin())/2)*qSin(timetor*25)+(Config::reg.getTorYMax() + Config::reg.getTorYMin())/2;
     timepot += 0.002;
     timetor += 0.002;
     ui->potPlot->appendPoint(QPointF(timepot, ypos));
     ui->torPlot->appendPoint(QPointF(timetor, ytor));
-    if (timepot > genconf.reg.getPosXMax())
+    if (timepot > Config::reg.getPosXMax())
     {
         timepot -= 0.002;
-        timepot -= genconf.reg.getPosXMax();
+        timepot -= Config::reg.getPosXMax();
         ui->potPlot->clearPoints();
     }
-    if (timetor > genconf.reg.getTorXMax())
+    if (timetor > Config::reg.getTorXMax())
     {
         timetor -= 0.002;
-        timetor -= genconf.reg.getTorXMax();
+        timetor -= Config::reg.getTorXMax();
         ui->torPlot->clearPoints();
     }
+}
+
+void MainWindow::on_controlStartButton_clicked()
+{
+    emit on_controlStartup(true);
+    samplingThread->setInterval(2);
+    samplingThread->initiate();
+}
+
+void MainWindow::on_controlPauseButton_clicked()
+{
+    if(running)
+    {
+        emit on_controlPause(true);
+    }
+    else
+    {
+        emit on_controlPause(false);
+    }
+}
+
+void MainWindow::on_controlStopButton_clicked()
+{
+    emit on_controlStartup(false);
+    samplingThread->stop();
 }

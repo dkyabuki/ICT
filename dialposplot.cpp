@@ -9,15 +9,14 @@ DialPosPlot::DialPosPlot(QWidget *parent) :
 {
     Qt::WindowFlags flags(Qt::WindowTitleHint);
     this->setWindowFlags(flags);
-    Config gen_config;
     ui->setupUi(this);
-    ui->xmaxLineEdit->setText(QString::number(gen_config.reg.getPosXMax()));
-    ui->xminLineEdit->setText(QString::number(gen_config.reg.getPosXMin()));
-    ui->ymaxLineEdit->setText(QString::number(gen_config.reg.getPosYMax()));
-    ui->yminLineEdit->setText(QString::number(gen_config.reg.getPosYMin()));
-    ui->stepSizeXLineEdit->setText(QString::number(gen_config.reg.getPosXStep()));
-    ui->stepSizeYLineEdit->setText(QString::number(gen_config.reg.getPosYStep()));
-    int unit = gen_config.reg.getPosPlotUnit();
+    ui->xmaxLineEdit->setText(QString::number(Config::reg.getPosXMax()));
+    ui->xminLineEdit->setText(QString::number(Config::reg.getPosXMin()));
+    ui->ymaxLineEdit->setText(QString::number(Config::reg.getPosYMax()));
+    ui->yminLineEdit->setText(QString::number(Config::reg.getPosYMin()));
+    ui->stepSizeXLineEdit->setText(QString::number(Config::reg.getPosXStep()));
+    ui->stepSizeYLineEdit->setText(QString::number(Config::reg.getPosYStep()));
+    int unit = Config::reg.getPosPlotUnit();
     if(unit <= 1){
         ui->vButton->setChecked(true);
         if(unit == 0){
@@ -83,24 +82,23 @@ void DialPosPlot::on_buttonBox_rejected()
 
 void DialPosPlot::on_buttonBox_accepted()
 {
-    Config gen_conf;
     if(ui->vButton->isChecked()){
         if(ui->vCheck->isChecked()){
-            gen_conf.reg.setPosPlotUnit(0);
+            Config::reg.setPosPlotUnit(0);
         } else {
-            gen_conf.reg.setPosPlotUnit(1);
+            Config::reg.setPosPlotUnit(1);
         }
     } else {
         if(ui->degCheck->isChecked()){
-            gen_conf.reg.setPosPlotUnit(2);
+            Config::reg.setPosPlotUnit(2);
         } else {
-            gen_conf.reg.setPosPlotUnit(3);
+            Config::reg.setPosPlotUnit(3);
         }
     }
-    gen_conf.reg.setPosXMax(ui->xmaxLineEdit->text().toDouble());
-    gen_conf.reg.setPosYMax(ui->ymaxLineEdit->text().toDouble());
-    gen_conf.reg.setPosXMin(ui->xminLineEdit->text().toDouble());
-    gen_conf.reg.setPosYMin(ui->yminLineEdit->text().toDouble());
-    gen_conf.reg.setPosXStep(ui->stepSizeXLineEdit->text().toDouble());
-    gen_conf.reg.setPosYStep(ui->stepSizeYLineEdit->text().toDouble());
+    Config::reg.setPosXMax(ui->xmaxLineEdit->text().toDouble());
+    Config::reg.setPosYMax(ui->ymaxLineEdit->text().toDouble());
+    Config::reg.setPosXMin(ui->xminLineEdit->text().toDouble());
+    Config::reg.setPosYMin(ui->yminLineEdit->text().toDouble());
+    Config::reg.setPosXStep(ui->stepSizeXLineEdit->text().toDouble());
+    Config::reg.setPosYStep(ui->stepSizeYLineEdit->text().toDouble());
 }

@@ -7,28 +7,27 @@ Dialt::Dialt(QWidget *parent) :
     ui(new Ui::Dialt)
 {
     ui->setupUi(this);
-    Config general_config;
-    ui->sensorPriorityLineEdit->setText(QString::number(general_config.reg.getSensorPriority()));
-    ui->controlPriorityLineEdit->setText(QString::number(general_config.reg.getControlPriority()));
-    ui->actuatorPriorityLineEdit->setText(QString::number(general_config.reg.getActuatorPriority()));
-    ui->serialPriorityLineEdit->setText(QString::number(general_config.reg.getSerialPriority()));
-    ui->sensorPeriodLineEdit->setText(QString::number(general_config.reg.getSensorPeriod()));
-    ui->controlPeriodLineEdit->setText(QString::number(general_config.reg.getControlPeriod()));
-    ui->actuatorPeriodLineEdit->setText(QString::number(general_config.reg.getActuatorPeriod()));
-    ui->serialPeriodLineEdit->setText(QString::number(general_config.reg.getSerialPeriod()));
-    if (general_config.reg.getSensorEnable())
+    ui->sensorPriorityLineEdit->setText(QString::number(Config::reg.getSensorPriority()));
+    ui->controlPriorityLineEdit->setText(QString::number(Config::reg.getControlPriority()));
+    ui->actuatorPriorityLineEdit->setText(QString::number(Config::reg.getActuatorPriority()));
+    ui->serialPriorityLineEdit->setText(QString::number(Config::reg.getSerialPriority()));
+    ui->sensorPeriodLineEdit->setText(QString::number(Config::reg.getSensorPeriod()));
+    ui->controlPeriodLineEdit->setText(QString::number(Config::reg.getControlPeriod()));
+    ui->actuatorPeriodLineEdit->setText(QString::number(Config::reg.getActuatorPeriod()));
+    ui->serialPeriodLineEdit->setText(QString::number(Config::reg.getSerialPeriod()));
+    if (Config::reg.getSensorEnable())
     {
         ui->sensorEnable->setChecked(true);
         ui->sensorPeriodLineEdit->setDisabled(true);
         ui->sensorPriorityLineEdit->setDisabled(true);
     }
-    if (general_config.reg.getControlEnable())
+    if (Config::reg.getControlEnable())
     {
         ui->controlEnable->setChecked(true);
         ui->controlPeriodLineEdit->setDisabled(true);
         ui->controlPriorityLineEdit->setDisabled(true);
     }
-    if (general_config.reg.getActuatorEnable())
+    if (Config::reg.getActuatorEnable())
     {
         ui->actuatorEnable->setChecked(true);
         ui->actuatorPeriodLineEdit->setDisabled(true);
@@ -175,27 +174,26 @@ void Dialt::on_serialEnable_stateChanged(int arg1)
 
 void Dialt::on_buttonBox_accepted()
 {
-    Config general_config;
     if(ui->sensorCheck->isChecked())
     {
-        general_config.reg.setSensorEnable(ui->sensorEnable->isChecked());
-        general_config.reg.setSensorPeriod(ui->sensorPeriodLineEdit->text().toInt());
-        general_config.reg.setSensorPriority(ui->sensorPriorityLineEdit->text().toInt());
+        Config::reg.setSensorEnable(ui->sensorEnable->isChecked());
+        Config::reg.setSensorPeriod(ui->sensorPeriodLineEdit->text().toInt());
+        Config::reg.setSensorPriority(ui->sensorPriorityLineEdit->text().toInt());
     }
     if(ui->actuatorCheck->isChecked())
     {
-        general_config.reg.setActuatorEnable(ui->actuatorEnable->isChecked());
-        general_config.reg.setActuatorPeriod(ui->actuatorPeriodLineEdit->text().toInt());
-        general_config.reg.setActuatorPriority(ui->actuatorPriorityLineEdit->text().toInt());
+        Config::reg.setActuatorEnable(ui->actuatorEnable->isChecked());
+        Config::reg.setActuatorPeriod(ui->actuatorPeriodLineEdit->text().toInt());
+        Config::reg.setActuatorPriority(ui->actuatorPriorityLineEdit->text().toInt());
     }
     if(ui->controlCheck->isChecked())
     {
-        general_config.reg.setControlEnable(ui->controlEnable->isChecked());
-        general_config.reg.setControlPeriod(ui->controlPeriodLineEdit->text().toInt());
-        general_config.reg.setControlPriority(ui->controlPriorityLineEdit->text().toInt());
+        Config::reg.setControlEnable(ui->controlEnable->isChecked());
+        Config::reg.setControlPeriod(ui->controlPeriodLineEdit->text().toInt());
+        Config::reg.setControlPriority(ui->controlPriorityLineEdit->text().toInt());
     }
-    general_config.reg.setSerialPeriod(ui->serialPeriodLineEdit->text().toInt());
-    general_config.reg.setSerialPriority(ui->serialPriorityLineEdit->text().toInt());
+    Config::reg.setSerialPeriod(ui->serialPeriodLineEdit->text().toInt());
+    Config::reg.setSerialPriority(ui->serialPriorityLineEdit->text().toInt());
     this->destroy();
 }
 
