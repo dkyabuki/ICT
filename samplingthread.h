@@ -5,6 +5,7 @@
 #include <qwt_series_data.h>
 #include <QtNetwork/QtNetwork>
 #include <QTime>
+#include <QString>
 
 class SamplingThread : public QwtSamplingThread
 {
@@ -28,6 +29,7 @@ public Q_SLOTS:
 signals:
     void pointAppendedPot(const QPointF point);
     void pointAppendedExt(const QPointF point);
+    void errorMsg(QString str);
 
 private slots:
     void pause(bool paused);
@@ -37,11 +39,12 @@ protected:
 
 private:
     virtual double value (double timeStamp) const;
-    QTcpSocket *tcpSocket;
+    QUdpSocket *udpSocket;
     int restartTime;
     double delay;
     bool active;
     QTime time;
+    QRegExp *rx;
 };
 
 #endif // SAMPLINGTHREAD_H

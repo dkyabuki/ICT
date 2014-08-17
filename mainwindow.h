@@ -46,6 +46,8 @@ private slots:
 
     void append_ext(const QPointF &point);
 
+    void show_error(QString str);
+
     void control_signal_emitted(bool on);
 
     void control_pause_signal_emitted(bool on);

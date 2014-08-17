@@ -106,6 +106,7 @@ MainWindow::MainWindow(QWidget *parent) :
     timepot = 0;
     timetor = 0;
     samplingThread = new SamplingThread(this);
+    connect(samplingThread, SIGNAL(errorMsg(QString)), this, SLOT(show_error(QString)),Qt::QueuedConnection);
     connect(samplingThread, SIGNAL(pointAppendedPot(QPointF)), this, SLOT(append_pos(const QPointF)),Qt::QueuedConnection);
     connect(samplingThread, SIGNAL(pointAppendedExt(QPointF)), this, SLOT(append_ext(const QPointF)),Qt::QueuedConnection);
     connect(this, SIGNAL(on_controlPause(bool)),samplingThread,SLOT(pause(bool)),Qt::QueuedConnection);
@@ -180,6 +181,11 @@ void MainWindow::append_ext(const QPointF &point)
         ui->torPlot->setAxisScale(2, min, max, Config::reg.getTorXStep());
         ui->torPlot->replot();
     }
+}
+
+void MainWindow::show_error(QString str)
+{
+    ui->statusBar->showMessage(str);
 }
 
 void MainWindow::control_signal_emitted(bool on)
