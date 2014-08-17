@@ -4,6 +4,7 @@
 #include "sequenceplot.h"
 #include <qwt_series_data.h>
 #include <QtNetwork/QtNetwork>
+#include <QTime>
 
 class SamplingThread : public QwtSamplingThread
 {
@@ -12,6 +13,7 @@ class SamplingThread : public QwtSamplingThread
 public:
     SamplingThread(QObject *parent = NULL);
     void initiate();
+    void halt();
     /*Inherits:
      * double interval()
      * double elapsed()
@@ -36,9 +38,10 @@ protected:
 private:
     virtual double value (double timeStamp) const;
     QTcpSocket *tcpSocket;
-    double pauseTime;
+    int restartTime;
     double delay;
     bool active;
+    QTime time;
 };
 
 #endif // SAMPLINGTHREAD_H

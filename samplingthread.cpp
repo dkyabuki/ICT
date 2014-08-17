@@ -10,14 +10,22 @@ SamplingThread::SamplingThread(QObject *parent):QwtSamplingThread(parent)
 void SamplingThread::initiate()
 {
     active = true;
+    time.start();
     start();
+}
+
+void SamplingThread::halt()
+{
+    delay = 0;
+    stop();
 }
 
 void SamplingThread::sample( double elapsed )
 {
     if(active)
     {
-        const QPointF point(elapsed - delay,value(elapsed));
+        const QPointF point((double)(time.elapsed()/1000.00 + delay/1000.00),value((double)(time.elapsed()/1000.00 + delay/1000.00)));
+        //const QPointF point(elapsed,value(elapsed));
         emit pointAppendedPot(point);
         emit pointAppendedExt(point);
     }
@@ -25,17 +33,17 @@ void SamplingThread::sample( double elapsed )
 
 double SamplingThread::value( double timeStamp ) const
 {
-    return (20*qFastSin(timeStamp*25));
+    return (5*qFastSin(timeStamp*25));
 }
 
 void SamplingThread::pause(bool paused)
 {
     if(paused)
     {
-        pauseTime = elapsed();
+        delay += time.elapsed();
         active = false;
     } else {
-        delay += (elapsed() - pauseTime);
+        time.start();
         active = true;
     }
 }

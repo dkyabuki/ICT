@@ -18,7 +18,7 @@ class SequencePlot : public QwtPlot
 public:
     SequencePlot(QWidget *parent = NULL);
     virtual ~SequencePlot();
-
+    QPointF dataSample(int i);
     void appendPoint(const QPointF &);
     void clearPoints();
     int size();

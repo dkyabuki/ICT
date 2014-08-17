@@ -34,6 +34,11 @@ SequencePlot::~SequencePlot()
     delete curve;
 }
 
+QPointF SequencePlot::dataSample(int i)
+{
+    return(curve->data()->sample(i));
+}
+
 void SequencePlot::appendPoint(const QPointF &point)
 {
     PlotData *data = static_cast<PlotData *>( curve->data() );

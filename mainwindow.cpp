@@ -342,28 +342,26 @@ void MainWindow::on_modeButton_clicked()
 
 void MainWindow::on_posSaveButton_clicked()
 {
-    int n = 3;
-    QString fileName = QFileDialog::getSaveFileName(this);
+    QString fileName = QFileDialog::getSaveFileName(this,"","","Text File (*.txt)");
     QFile file (fileName);
     file.open(QIODevice::WriteOnly | QIODevice::Text);
     QTextStream out(&file);
-    for(int i = 0; i < n; i++)
+    for(int i = 0; i < ui->potPlot->size(); i++)
     {
-
+        out<<i<<"\t"<<ui->potPlot->dataSample(i).x()<<"\t"<<ui->potPlot->dataSample(i).y()<<"\n";
     }
     file.close();
 }
 
 void MainWindow::on_torSaveButton_clicked()
 {
-    int n = 3;
-    QString fileName = QFileDialog::getSaveFileName(this);
+    QString fileName = QFileDialog::getSaveFileName(this,"","","Text File (*.txt)");
     QFile file (fileName);
     file.open(QIODevice::WriteOnly | QIODevice::Text);
     QTextStream out(&file);
-    for(int i = 0; i < n; i++)
+    for(int i = 0; i < ui->torPlot->size(); i++)
     {
-
+        out<<i<<"\t"<<ui->torPlot->dataSample(i).x()<<"\t"<<ui->torPlot->dataSample(i).y()<<"\n";
     }
     file.close();
 }
@@ -411,6 +409,12 @@ void MainWindow::on_pushButton_clicked()
 
 void MainWindow::on_controlStartButton_clicked()
 {
+    if((ui->potPlot->size()>0) | (ui->torPlot->size()>0))
+    {
+        ui->potPlot->clearPoints();
+        ui->torPlot->clearPoints();
+    }
+    updatePlotCanvas();
     emit on_controlStartup(true);
     samplingThread->setInterval(2);
     samplingThread->initiate();
@@ -431,5 +435,5 @@ void MainWindow::on_controlPauseButton_clicked()
 void MainWindow::on_controlStopButton_clicked()
 {
     emit on_controlStartup(false);
-    samplingThread->stop();
+    samplingThread->halt();
 }

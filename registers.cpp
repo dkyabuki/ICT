@@ -33,8 +33,6 @@ Registers::Registers() //inicializa registros na configuração padrão
     TOR_X_STEP = 0.1;
     POS_Y_STEP = 5;
     TOR_Y_STEP = 0.5;
-
-
 }
 
 Registers::~Registers()
