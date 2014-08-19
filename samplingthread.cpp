@@ -4,10 +4,10 @@
 SamplingThread::SamplingThread(QObject *parent):QwtSamplingThread(parent)
 {
     active = false;
-    delay = 0;
     udpSocket = new QUdpSocket(this);
     udpSocket->bind(45454, QUdpSocket::ShareAddress);
-    rx = new QRegExp("(\\ |\\,|\\.|\\:|\\t)");
+    delay = 0;
+    rx = new QRegExp("(\\ |\\,|\\:|\\t)");
 }
 
 void SamplingThread::initiate()
@@ -31,28 +31,25 @@ void SamplingThread::sample( double elapsed )
 //        //const QPointF point(elapsed,value(elapsed));
 //        emit pointAppendedPot(point);
 //        emit pointAppendedExt(point);
-        if (udpSocket->hasPendingDatagrams()) {
+        while (udpSocket->hasPendingDatagrams()) {
             QByteArray datagram;
             datagram.resize(udpSocket->pendingDatagramSize());
             udpSocket->readDatagram(datagram.data(), datagram.size());
             QStringList query = QString(datagram.constData()).split(*rx);
-            if (query[0].toInt() != 40)
+            if((query[0].toInt() == 40) && !query[1].isNull() && !query[2].isNull() && !query[3].isNull() && (query[4] == "\0"))
             {
-                emit errorMsg("Erro ao ler primeiro termo");
-                return;
-            }
-            if(!query[1].isNull() && !query[2].isNull() && !query[3].isNull())
-            {
+//                emit errorMsg("query[2]: " + query[2]);
                 double x;
                 x = query[1].toDouble()/1000.00;
                 const QPointF p(x, query[2].toDouble()/1000.00);
-                const QPointF t(x, query[3].toDouble()/1000.00);
+                const QPointF t(x, query[4].toDouble()/1000.00);
                 emit pointAppendedPot(p);
                 emit pointAppendedExt(t);
             }
             else
             {
                 emit errorMsg("Erro ao ler valores");
+                udpSocket->flush();
                 return;
             }
         }

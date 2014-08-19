@@ -15,6 +15,7 @@ public:
     SamplingThread(QObject *parent = NULL);
     void initiate();
     void halt();
+
     /*Inherits:
      * double interval()
      * double elapsed()
