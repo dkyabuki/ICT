@@ -34,6 +34,9 @@ signals:
 
 private slots:
     void pause(bool paused);
+    void tcpReady();
+    void tcpError(QAbstractSocket::SocketError se);
+    void requestNewMsg();
 
 protected:
     virtual void sample (double elapsed);
@@ -41,11 +44,14 @@ protected:
 private:
     virtual double value (double timeStamp) const;
     QUdpSocket *udpSocket;
+    QTcpSocket *tcpSocket;
     int restartTime;
     double delay;
     bool active;
     QTime time;
     QRegExp *rx;
+    quint16 blockSize;
+    QString currentMessage;
 };
 
 #endif // SAMPLINGTHREAD_H
