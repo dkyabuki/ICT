@@ -2,6 +2,7 @@
 #define SAMPLINGTHREAD_H
 #include "qwt_sampling_thread.h"
 #include "sequenceplot.h"
+#include "udpcomm.h"
 #include <qwt_series_data.h>
 #include <QtNetwork/QtNetwork>
 #include <QTime>
@@ -43,7 +44,8 @@ protected:
 
 private:
     virtual double value (double timeStamp) const;
-    QUdpSocket *udpSocket;
+//    QUdpSocket *udpSocket;
+    UdpComm *udpmgr;
     QTcpSocket *tcpSocket;
     int restartTime;
     double delay;

@@ -6,8 +6,7 @@ SamplingThread::SamplingThread(QObject *parent):QwtSamplingThread(parent)
     active = false;
     tcpSocket = new QTcpSocket(this);
     tcpSocket->bind(45454, QTcpSocket::ShareAddress);
-    udpSocket = new QUdpSocket(this);
-    udpSocket->bind(45454, QUdpSocket::ShareAddress);
+    udpmgr = new UdpComm();
     delay = 0;
     rx = new QRegExp("(\\ |\\,|\\:|\\t)");
     connect(tcpSocket, SIGNAL(readyRead()), this, SLOT(tcpReady()));
@@ -17,7 +16,7 @@ SamplingThread::SamplingThread(QObject *parent):QwtSamplingThread(parent)
 
 void SamplingThread::initiate()
 {
-    tcpSocket->connectToHost("192.168.0.145", 45454);
+    tcpSocket->connectToHost(QHostAddress::LocalHost, 45454);
     blockSize = 0;
     active = true;
     time.start();
@@ -47,28 +46,22 @@ void SamplingThread::sample( double elapsed )
         /*************************/
         /*    Conexao por UDP    */
         /*************************/
-        /*while (udpSocket->hasPendingDatagrams()) {
-            QByteArray datagram;
-            datagram.resize(udpSocket->pendingDatagramSize());
-            udpSocket->readDatagram(datagram.data(), datagram.size());
-            QStringList query = QString(datagram.constData()).split(*rx);
-            if((query[0].toInt() == 40) && !query[1].isNull() && !query[2].isNull() && !query[3].isNull() && (query[4] == "\0"))
-            {
-//                emit errorMsg("query[2]: " + query[2]);
-                double x;
-                x = query[1].toDouble()/1000.00;
-                const QPointF p(x, query[2].toDouble()/1000.00);
-                const QPointF t(x, query[4].toDouble()/1000.00);
-                emit pointAppendedPot(p);
-                emit pointAppendedExt(t);
-            }
-            else
-            {
-                emit errorMsg("Erro ao ler valores");
-                udpSocket->flush();
-                return;
-            }
-        }*/
+        QStringList query = udpmgr->udpRead();
+        if(!UdpComm::checkError(query))
+        {
+              emit errorMsg("query[1]: " + query[1]);
+//            double x;
+//            x = query[1].toDouble()/1000.00;
+//            const QPointF p(x, query[2].toDouble()/1000.00);
+//            const QPointF t(x, query[3].toDouble()/1000.00);
+//            emit pointAppendedPot(p);
+//            emit pointAppendedExt(t);
+        }
+        else
+        {
+            emit errorMsg("Erro ao ler valores");
+            return;
+        }
     }
 }
 
