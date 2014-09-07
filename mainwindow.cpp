@@ -27,6 +27,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    //INICIALIZACAO DE MEMBROS
     sigetters[0] = &Registers::getMonitoring;
     sigetters[1] = &Registers::getSensoring;
     sigetters[2] = &Registers::getTrajectory;
@@ -90,6 +91,14 @@ MainWindow::MainWindow(QWidget *parent) :
     dsetters[9] = &Registers::setTorXStep;
     dsetters[10] = &Registers::setPosYStep;
     dsetters[11] = &Registers::setPosYStep;
+
+    running = false;
+    timepot = 0;
+    timetor = 0;
+    red.setColor(QPalette::WindowText,Qt::red);
+    black.setColor(QPalette::WindowText,Qt::black);
+    samplingThread = new SamplingThread(this);
+
     ui->potPlot->setAxisScale(0,-20,20,5);
     ui->potPlot->setAxisScale(2,0,1,0.1);
     ui->torPlot->setAxisScale(0,-2,2,0.5);
@@ -98,20 +107,22 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->potPlot->setAxisTitle(2,"Time (s)");
     ui->torPlot->setAxisTitle(0,"Tension (V)");
     ui->torPlot->setAxisTitle(2,"Time (s)");
+
+    ui->connectionLabel->setPalette(red);
+    ui->ipLabel->setPalette(red);
+    ui->portLabel->setPalette(red);
+
     connect(ui->actionClose, SIGNAL(triggered()), this, SLOT(close_program()));
     connect(ui->actionSave_Current_Config, SIGNAL(triggered()), this, SLOT(save_config()));
     connect(ui->actionLoad_Config, SIGNAL(triggered()), this, SLOT(load_config()));
     connect(this, SIGNAL(on_controlStartup(bool)), this, SLOT(control_signal_emitted(bool)),Qt::DirectConnection);
     connect(this, SIGNAL(on_controlPause(bool)), this, SLOT(control_pause_signal_emitted(bool)),Qt::DirectConnection);
-    timepot = 0;
-    timetor = 0;
-    samplingThread = new SamplingThread(this);
     connect(samplingThread, SIGNAL(errorMsg(QString)), this, SLOT(show_error(QString)),Qt::QueuedConnection);
+    connect(samplingThread, SIGNAL(updateGUI(QStringList)), this, SLOT(update_connection(QStringList)));
     connect(samplingThread, SIGNAL(pointAppendedPot(QPointF)), this, SLOT(append_pos(const QPointF)),Qt::QueuedConnection);
     connect(samplingThread, SIGNAL(pointAppendedExt(QPointF)), this, SLOT(append_ext(const QPointF)),Qt::QueuedConnection);
     connect(this, SIGNAL(on_controlPause(bool)),samplingThread,SLOT(pause(bool)),Qt::QueuedConnection);
     emit on_controlStartup(false);
-    running = false;
 }
 
 MainWindow::~MainWindow()
@@ -187,6 +198,42 @@ void MainWindow::show_error(QString str)
 {
     ui->statusBar->showMessage(str);
 }
+
+void MainWindow::update_connection(QStringList str)
+{
+    if(str.size() != 3){
+        ui->statusBar->showMessage("Error in GUI update - Connection: size of the config stringlist is larger than 3");
+        return;
+    }
+
+    for(int i = 0; i < str.size(); i++)
+    {
+        switch(i)
+        {
+        case 0:
+            ui->connectionLabel->setText(str[i]);
+            if(QString::compare(str[i],"Disconnected",Qt::CaseInsensitive) != 0)
+                ui->connectionLabel->setPalette(black);
+            else
+                ui->connectionLabel->setPalette(red);
+            break;
+        case 1:
+            ui->ipLabel->setText(str[i]);
+            if(QString::compare(str[i],"-",Qt::CaseInsensitive) != 0)
+                ui->ipLabel->setPalette(black);
+            else
+                ui->ipLabel->setPalette(red);
+            break;
+        case 2:
+            ui->portLabel->setText(str[i]);
+            if(QString::compare(str[i],"-",Qt::CaseInsensitive) != 0)
+                ui->portLabel->setPalette(black);
+            else
+                ui->portLabel->setPalette(red);
+        }
+    }
+}
+
 
 void MainWindow::control_signal_emitted(bool on)
 {

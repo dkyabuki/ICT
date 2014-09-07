@@ -48,6 +48,8 @@ private slots:
 
     void show_error(QString str);
 
+    void update_connection(QStringList str);
+
     void control_signal_emitted(bool on);
 
     void control_pause_signal_emitted(bool on);
@@ -84,6 +86,8 @@ signals:
 private:
     SamplingThread *samplingThread;
     double timepot, timetor;
+    QPalette red;
+    QPalette black;
     void updatePlotCanvas();
     Ui::MainWindow *ui;
     bool running;

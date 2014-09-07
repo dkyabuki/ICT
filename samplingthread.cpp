@@ -1,6 +1,7 @@
 #include "samplingthread.h"
 #include <qmath.h>
 
+//Inicializa membros e conecta sinais
 SamplingThread::SamplingThread(QObject *parent):QwtSamplingThread(parent)
 {
     active = false;
@@ -14,15 +15,37 @@ SamplingThread::SamplingThread(QObject *parent):QwtSamplingThread(parent)
     currentMessage = " ";
 }
 
+//Inicia o thread
 void SamplingThread::initiate()
 {
-    tcpSocket->connectToHost(QHostAddress::LocalHost, 45454);
+    QString ip;
+    QList<QHostAddress> iplist = QNetworkInterface::allAddresses();
+    for (int i = 0; i < iplist.size(); ++i) {
+        if (iplist.at(i) != QHostAddress::LocalHost &&
+            iplist.at(i).toIPv4Address()) {
+            ip = iplist.at(i).toString();
+            break;
+        }
+    }
+    if (ip.isEmpty())
+        ip = QHostAddress(QHostAddress::LocalHost).toString();
+
+    tcpSocket->connectToHost(ip, 45454);
+    connectionConfig = QStringList()<<"TCP"<<ip<<"45454";
     blockSize = 0;
-    active = true;
+    connect(tcpSocket, SIGNAL(connected()), this, SLOT(on_connection()));
+//    active = true;
+}
+
+//Executa quando uma conexao TCP eh feita
+void SamplingThread::on_connection()
+{
+    emit updateGUI(connectionConfig);
     time.start();
     start();
 }
 
+//Interrompe a conexao do socket TCP
 void SamplingThread::halt()
 {
     tcpSocket->disconnectFromHost();
@@ -30,6 +53,7 @@ void SamplingThread::halt()
     stop();
 }
 
+//Nao funcional - Executada a cada x ms
 void SamplingThread::sample( double elapsed )
 {
     if(active)
@@ -50,12 +74,14 @@ void SamplingThread::sample( double elapsed )
         if(!UdpComm::checkError(query))
         {
               emit errorMsg("query[1]: " + query[1]);
+
 //            double x;
 //            x = query[1].toDouble()/1000.00;
 //            const QPointF p(x, query[2].toDouble()/1000.00);
 //            const QPointF t(x, query[3].toDouble()/1000.00);
 //            emit pointAppendedPot(p);
 //            emit pointAppendedExt(t);
+
         }
         else
         {
@@ -91,16 +117,16 @@ void SamplingThread::tcpReady()
     }
 
     QStringList query = nextMessage.split(*rx);
-    if((query[0].toInt() == 40) && !query[1].isNull() && !query[2].isNull() && !query[3].isNull() && (query[4] == "\0"))
-    {
-//                emit errorMsg("query[2]: " + query[2]);
-        double x;
-        x = query[1].toDouble()/1000.00;
-        const QPointF p(x, query[2].toDouble()/1000.00);
-        const QPointF t(x, query[4].toDouble()/1000.00);
-        emit pointAppendedPot(p);
-        emit pointAppendedExt(t);
-    }
+    emit errorMsg(nextMessage);
+//    if((query[0].toInt() == 40) && !query[1].isNull() && !query[2].isNull() && !query[3].isNull() && (query[4] == "\0"))
+//    {
+//        double x;
+//        x = query[1].toDouble()/1000.00;
+//        const QPointF p(x, query[2].toDouble()/1000.00);
+//        const QPointF t(x, query[4].toDouble()/1000.00);
+//        emit pointAppendedPot(p);
+//        emit poin tAppendedExt(t);
+//    }
     currentMessage = nextMessage;
 }
 
@@ -108,7 +134,20 @@ void SamplingThread::requestNewMsg()
 {
     blockSize = 0;
     tcpSocket->abort();
-    tcpSocket->connectToHost("192.168.0.145", 45454);
+
+    QString ip;
+    QList<QHostAddress> iplist = QNetworkInterface::allAddresses();
+    for (int i = 0; i < iplist.size(); ++i) {
+        if (iplist.at(i) != QHostAddress::LocalHost &&
+            iplist.at(i).toIPv4Address()) {
+            ip = iplist.at(i).toString();
+            break;
+        }
+    }
+    if (ip.isEmpty())
+        ip = QHostAddress(QHostAddress::LocalHost).toString();
+
+    tcpSocket->connectToHost(ip, 45454);
 }
 
 void SamplingThread::tcpError(QAbstractSocket::SocketError se)

@@ -32,8 +32,10 @@ signals:
     void pointAppendedPot(const QPointF point);
     void pointAppendedExt(const QPointF point);
     void errorMsg(QString str);
+    void updateGUI(QStringList strl);
 
 private slots:
+    void on_connection();
     void pause(bool paused);
     void tcpReady();
     void tcpError(QAbstractSocket::SocketError se);
@@ -54,6 +56,7 @@ private:
     QRegExp *rx;
     quint16 blockSize;
     QString currentMessage;
+    QStringList connectionConfig;
 };
 
 #endif // SAMPLINGTHREAD_H
