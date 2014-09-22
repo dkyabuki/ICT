@@ -2,16 +2,16 @@
 #define UDPCOMM_H
 #include <QtNetwork>
 
-class UdpComm
+
+class UdpComm : public QUdpSocket
 {
+
 public:
-    UdpComm();
+    UdpComm(QObject *parent = NULL);
     QStringList udpRead();
-    static bool checkError(QStringList query);
-    void emptySocket();
+    static bool datagramIsWrong(QStringList query);
 
 private:
-    QUdpSocket *socket;
     QRegExp *rx;
 
 };

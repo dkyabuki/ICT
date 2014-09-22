@@ -117,7 +117,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionLoad_Config, SIGNAL(triggered()), this, SLOT(load_config()));
     connect(this, SIGNAL(on_controlStartup(bool)), this, SLOT(control_signal_emitted(bool)),Qt::DirectConnection);
     connect(this, SIGNAL(on_controlPause(bool)), this, SLOT(control_pause_signal_emitted(bool)),Qt::DirectConnection);
-    connect(samplingThread, SIGNAL(errorMsg(QString)), this, SLOT(show_error(QString)),Qt::QueuedConnection);
+    connect(samplingThread, SIGNAL(showMsg(QString)), this, SLOT(show_error(QString)),Qt::QueuedConnection);
     connect(samplingThread, SIGNAL(updateGUI(QStringList)), this, SLOT(update_connection(QStringList)));
     connect(samplingThread, SIGNAL(pointAppendedPot(QPointF)), this, SLOT(append_pos(const QPointF)),Qt::QueuedConnection);
     connect(samplingThread, SIGNAL(pointAppendedExt(QPointF)), this, SLOT(append_ext(const QPointF)),Qt::QueuedConnection);
@@ -469,7 +469,7 @@ void MainWindow::on_controlStartButton_clicked()
     }
     updatePlotCanvas();
     emit on_controlStartup(true);
-    samplingThread->setInterval(2);
+    samplingThread->setInterval(1);
     samplingThread->initiate();
 }
 
