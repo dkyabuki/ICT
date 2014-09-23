@@ -33,6 +33,12 @@ Registers::Registers() //inicializa registros na configuração padrão
     TOR_X_STEP = 0.1;
     POS_Y_STEP = 5;
     TOR_Y_STEP = 0.5;
+
+    MACHINE_ID = 1;
+    BAUD = 115200;
+    SERIAL_ON = true;
+    TCP_ON = false;
+    UDP_ON = false;
 }
 
 Registers::~Registers()
@@ -174,6 +180,26 @@ double Registers::getTorYStep(){
     return(TOR_Y_STEP);
 }
 
+short int Registers::getMachineId(){
+    return(MACHINE_ID);
+}
+
+double Registers::getBaud(){
+    return(BAUD);
+}
+
+bool Registers::getSerial(){
+    return(SERIAL_ON);
+}
+
+bool Registers::getTCP(){
+    return(TCP_ON);
+}
+
+bool Registers::getUDP(){
+    return(UDP_ON);
+}
+
 /*************************************/
 /*              SETTERS              */
 /*************************************/
@@ -306,4 +332,24 @@ void Registers::setPosYStep(double v){
 
 void Registers::setTorYStep(double v){
     TOR_Y_STEP = v;
+}
+
+void Registers::setMachineId(short int v){
+    MACHINE_ID = v;
+}
+
+void Registers::setBaud(double v){
+    BAUD = v;
+}
+
+void Registers::setSerial(bool v){
+    SERIAL_ON = v;
+}
+
+void Registers::setTCP(bool v){
+    TCP_ON = v;
+}
+
+void Registers::setUDP(bool v){
+    UDP_ON = v;
 }

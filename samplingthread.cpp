@@ -5,34 +5,22 @@
 SamplingThread::SamplingThread(QObject *parent):QwtSamplingThread(parent)
 {
     active = false;
-    udpmgr = new UdpComm();
-    udpmgr->bind(45454, UdpComm::ShareAddress);
-    delay = 0;
-//    tcpSocket = new QTcpSocket(this);
-//    tcpSocket->bind(45454, QTcpSocket::ShareAddress);
-//    connect(tcpSocket, SIGNAL(readyRead()), this, SLOT(tcpReady()));
-//    connect(tcpSocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT());
-//    currentMessage = " ";
+#ifdef __UDP_COMM
+    udpmgr = new UdpComm(this);
+#endif
+#ifdef __TCP_COMM
+    tcpmgr = new TcpComm(this, ip, port);
+#endif
 }
 
 SamplingThread::~SamplingThread()
 {
-    udpmgr->deleteLater();
     this->deleteLater();
 }
 
 //Inicia o thread
 void SamplingThread::initiate()
 {
-//    QString ip;
-//    QList<QHostAddress> iplist = QNetworkInterface::allAddresses();
-//    for (int i = 0; i < iplist.size(); ++i) {
-//        if (iplist.at(i) != QHostAddress::LocalHost &&
-//            iplist.at(i).toIPv4Address()) {
-//            ip = iplist.at(i).toString();
-//            break;
-//        }
-//    }
 //    if (ip.isEmpty())
 //        ip = QHostAddress(QHostAddress::LocalHost).toString();
 
@@ -41,6 +29,9 @@ void SamplingThread::initiate()
 //    blockSize = 0;
 //    connect(tcpSocket, SIGNAL(connected()), this, SLOT(on_connection()));
     active = true;
+#ifdef __UDP_COMM
+    udpmgr->bind(45454, UdpComm::ShareAddress);
+#endif
     start();
 }
 
@@ -56,7 +47,9 @@ void SamplingThread::initiate()
 void SamplingThread::halt()
 {
 //    tcpSocket->disconnectFromHost();
-    delay = 0;
+#ifdef __UDP_COMM
+    udpmgr->abort();
+#endif
     stop();
 }
 
@@ -65,39 +58,24 @@ void SamplingThread::sample( double elapsed )
 {
     if(active)
     {
-        /****************************/
-        /*    Excitacao senoidal    */
-        /****************************/
-        /*const QPointF point((double)(time.elapsed()/1000.00 + delay/1000.00),value((double)(time.elapsed()/1000.00 + delay/1000.00)));
-        //const QPointF point(elapsed,value(elapsed));
-        emit pointAppendedPot(point);
-        emit pointAppendedExt(point);*/
-
-
         /*************************/
         /*    Conexao por UDP    */
         /*************************/
+#ifdef __UDP_COMM
         if(udpmgr->hasPendingDatagrams())
         {
             QStringList query = udpmgr->udpRead();
             if(!UdpComm::datagramIsWrong(query))
             {
-//                  emit errorMsg("query[1]: " + query[1]);
-
-                double x;
-                x = query[1].toDouble()/1000.00;
-                const QPointF p(x, query[2].toDouble()/1000.00);
-                const QPointF t(x, query[3].toDouble()/1000.00);
-                emit pointAppendedPot(p);
-                emit pointAppendedExt(t);
-
+                plot(query);
             }
             else
             {
                 emit showMsg("Erro ao ler valores");
-                return;
             }
         }
+#endif
+
     }
 }
 
@@ -160,31 +138,37 @@ void SamplingThread::sample( double elapsed )
 //    tcpSocket->connectToHost(ip, 45454);
 //}
 
-//void SamplingThread::tcpError(QAbstractSocket::SocketError se)
-//{
-//    switch(se)
-//    {
-//    case(QAbstractSocket::RemoteHostClosedError):
-//        break;
-//    case(QAbstractSocket::HostNotFoundError):
-//        emit errorMsg("Host was not found");
-//        break;
-//    case(QAbstractSocket::ConnectionRefusedError):
-//        emit errorMsg("Connection refused by peer");
-//        break;
-//    default:
-//        emit errorMsg("the error " + tcpSocket->errorString());
-//    }
-//}
-
-void SamplingThread::pause(bool paused)
+void SamplingThread::pause(bool running)
 {
-    if(paused)
-    {
-        delay += time.elapsed();
-        active = false;
-    } else {
-        time.start();
-        active = true;
-    }
+    active = !running;
+#ifdef __TCP_COMM
+    if(!active)
+
+    else
+
+#endif
+
+#ifdef __UDP_COMM
+    if(!active)
+        udpmgr->abort();
+    else
+        udpmgr->bind(45454, UdpComm::ShareAddress);
+#endif
+
+}
+
+void SamplingThread::commConfig(QHostAddress ipconf, quint16 portconf)
+{
+    ip = ipconf;
+    port = portconf;
+}
+
+void SamplingThread::plot(QStringList query)
+{
+    double x;
+    x = query[1].toDouble()/1000.00;
+    const QPointF p(x, query[2].toDouble()/1000.00);
+    const QPointF t(x, query[3].toDouble()/1000.00);
+    emit pointAppendedPot(p);
+    emit pointAppendedExt(t);
 }

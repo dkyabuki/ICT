@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>783</width>
-    <height>610</height>
+    <width>787</width>
+    <height>1008</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -176,7 +176,7 @@
         </item>
        </layout>
       </item>
-      <item row="6" column="0" colspan="3">
+      <item row="7" column="0" colspan="3">
        <spacer name="verticalSpacer_3">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
@@ -499,6 +499,19 @@
         </property>
        </widget>
       </item>
+      <item row="6" column="0" colspan="3" alignment="Qt::AlignHCenter">
+       <widget class="QPushButton" name="commConfButton">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Communication Config.</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
    </layout>
@@ -508,7 +521,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>783</width>
+     <width>787</width>
      <height>21</height>
     </rect>
    </property>

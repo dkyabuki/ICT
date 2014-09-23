@@ -1,9 +1,9 @@
 #ifndef REGISTERS_H
 #define REGISTERS_H
 
-#define NSI 14
-#define NB 3
-#define ND 12
+#define NSI 15
+#define NB 6
+#define ND 13
 
 class Registers
 {
@@ -48,6 +48,12 @@ public:
     double getPosYStep();
     double getTorYStep();
 
+    short int getMachineId();
+    double getBaud();
+    bool getSerial();
+    bool getTCP();
+    bool getUDP();
+
     void setMonitoring (short int v);
     void setSensoring (short int v);
     void setTrajectory (short int v);
@@ -84,9 +90,15 @@ public:
     void setPosYStep(double v);
     void setTorYStep(double v);
 
+    void setMachineId(short int v);
+    void setBaud(double v);
+    void setSerial(bool v);
+    void setTCP(bool v);
+    void setUDP(bool v);
+
 private:
 
-    //Short Int = 14
+    //Short Int = 15
     short int MONITORING;        //0
     short int SENSORING;         //1
     short int TRAJECTORY;        //2
@@ -101,13 +113,17 @@ private:
     short int MODE;              //11 (0 = position, 1 = torque)
     short int POS_PLOT_UNIT;     //12 (0 = v, 1 = mv, 2 = deg, 3 = rad)
     short int TOR_PLOT_UNIT;     //13 (0 = v, 1 = mv, 2 = N.m, 3 = N.mm)
+    short int MACHINE_ID;        //14
 
-    //Bool = 3
+    //Bool = 6
     bool ACTUATOR_ENABLE;    //0
     bool CONTROL_ENABLE;     //1
     bool SENSOR_ENABLE;      //2
+    bool SERIAL_ON;          //3
+    bool TCP_ON;             //4
+    bool UDP_ON;             //5
 
-    //Doubles = 12
+    //Doubles = 13
     double POS_X_MAX;    //0
     double POS_Y_MAX;    //1
     double TOR_X_MAX;    //2
@@ -120,6 +136,7 @@ private:
     double TOR_X_STEP;   //9
     double POS_Y_STEP;   //10
     double TOR_Y_STEP;   //11
+    double BAUD;         //12
 };
 
 #endif // REGISTERS_H

@@ -83,6 +83,8 @@ signals:
 
     void on_controlPause(bool on);
 
+    void comm_config(QHostAddress ipconf, quint16 portconf);
+
 private:
     SamplingThread *samplingThread;
     double timepot, timetor;

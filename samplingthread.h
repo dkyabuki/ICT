@@ -3,6 +3,7 @@
 #include "qwt_sampling_thread.h"
 #include "sequenceplot.h"
 #include "udpcomm.h"
+#include "tcpcomm.h"
 #include <qwt_series_data.h>
 #include <QTime>
 #include <QString>
@@ -29,6 +30,7 @@ signals:
 private slots:
 //    void on_connection();
     void pause(bool paused);
+    void commConfig(QHostAddress ipconf, quint16 portconf);
 //    void tcpReady();
 //    void tcpError(QAbstractSocket::SocketError se);
 //    void requestNewMsg();
@@ -37,15 +39,17 @@ protected:
     virtual void sample (double elapsed);
 
 private:
-    UdpComm *udpmgr;
-//    QTcpSocket *tcpSocket;
+    void plot(QStringList query);
+
     int restartTime;
-    double delay;
     bool active;
     QTime time;
-//    quint16 blockSize;
-//    QString currentMessage;
 //    QStringList connectionConfig;
+
+    quint16 port;
+    QHostAddress ip;
+    UdpComm *udpmgr;
+    TcpComm *tcpmgr;
 };
 
 #endif // SAMPLINGTHREAD_H

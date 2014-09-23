@@ -4,22 +4,22 @@
 #include <QtSerialPort/QSerialPort>
 
 typedef short int (Registers::*sigetter)(void);
-sigetter sigetters[14];
+sigetter sigetters[15];
 
 typedef bool (Registers::*bgetter)(void);
-bgetter bgetters[3];
+bgetter bgetters[6];
 
 typedef double (Registers::*dgetter)(void);
-dgetter dgetters[12];
+dgetter dgetters[13];
 
 typedef void (Registers::*sisetter)(short int);
-sisetter sisetters[14];
+sisetter sisetters[15];
 
 typedef void (Registers::*bsetter)(bool);
-bsetter bsetters[3];
+bsetter bsetters[6];
 
 typedef void (Registers::*dsetter)(double);
-dsetter dsetters[12];
+dsetter dsetters[13];
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -42,10 +42,14 @@ MainWindow::MainWindow(QWidget *parent) :
     sigetters[11] = &Registers::getMode;
     sigetters[12] = &Registers::getPosPlotUnit;
     sigetters[13] = &Registers::getTorPlotUnit;
+    sigetters[14] = &Registers::getMachineId;
 
     bgetters[0] = &Registers::getSensorEnable;
     bgetters[1] = &Registers::getControlEnable;
     bgetters[2] = &Registers::getActuatorEnable;
+    bgetters[3] = &Registers::getSerial;
+    bgetters[4] = &Registers::getTCP;
+    bgetters[5] = &Registers::getUDP;
 
     dgetters[0] = &Registers::getPosXMax;
     dgetters[1] = &Registers::getPosYMax;
@@ -59,6 +63,7 @@ MainWindow::MainWindow(QWidget *parent) :
     dgetters[9] = &Registers::getTorXStep;
     dgetters[10] = &Registers::getPosYStep;
     dgetters[11] = &Registers::getPosYStep;
+    dgetters[12] = &Registers::getBaud;
 
     sisetters[0] = &Registers::setMonitoring;
     sisetters[1] = &Registers::setSensoring;
@@ -74,10 +79,14 @@ MainWindow::MainWindow(QWidget *parent) :
     sisetters[11] = &Registers::setMode;
     sisetters[12] = &Registers::setPosPlotUnit;
     sisetters[13] = &Registers::setTorPlotUnit;
+    sisetters[14] = &Registers::setMachineId;
 
     bsetters[0] = &Registers::setSensorEnable;
     bsetters[1] = &Registers::setControlEnable;
     bsetters[2] = &Registers::setActuatorEnable;
+    bsetters[3] = &Registers::setSerial;
+    bsetters[4] = &Registers::setTCP;
+    bsetters[5] = &Registers::setUDP;
 
     dsetters[0] = &Registers::setPosXMax;
     dsetters[1] = &Registers::setPosYMax;
@@ -91,6 +100,7 @@ MainWindow::MainWindow(QWidget *parent) :
     dsetters[9] = &Registers::setTorXStep;
     dsetters[10] = &Registers::setPosYStep;
     dsetters[11] = &Registers::setPosYStep;
+    dsetters[12] = &Registers::setBaud;
 
     running = false;
     timepot = 0;
@@ -122,6 +132,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(samplingThread, SIGNAL(pointAppendedPot(QPointF)), this, SLOT(append_pos(const QPointF)),Qt::QueuedConnection);
     connect(samplingThread, SIGNAL(pointAppendedExt(QPointF)), this, SLOT(append_ext(const QPointF)),Qt::QueuedConnection);
     connect(this, SIGNAL(on_controlPause(bool)),samplingThread,SLOT(pause(bool)),Qt::QueuedConnection);
+    connect(this, SIGNAL(comm_config(QHostAddress,quint16)), samplingThread, SLOT(commConfig(QHostAddress,quint16)));
     emit on_controlStartup(false);
 }
 
@@ -384,8 +395,6 @@ void MainWindow::on_regButton_clicked()
     registerdialog.exec();
 }
 
-
-
 void MainWindow::on_modeButton_clicked()
 {
     Dialm modedialog;
@@ -475,14 +484,7 @@ void MainWindow::on_controlStartButton_clicked()
 
 void MainWindow::on_controlPauseButton_clicked()
 {
-    if(running)
-    {
-        emit on_controlPause(true);
-    }
-    else
-    {
-        emit on_controlPause(false);
-    }
+    emit on_controlPause(running);
 }
 
 void MainWindow::on_controlStopButton_clicked()
@@ -490,3 +492,4 @@ void MainWindow::on_controlStopButton_clicked()
     emit on_controlStartup(false);
     samplingThread->halt();
 }
+
