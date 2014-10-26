@@ -12,6 +12,7 @@
 #include "dialquit.h"
 #include "sequenceplot.h"
 #include "samplingthread.h"
+#include "dialcomm.h"
 #include <QFileDialog>
 #include <QFile>
 #include <QTextStream>
@@ -77,6 +78,8 @@ private slots:
     void on_controlPauseButton_clicked();
 
     void on_controlStopButton_clicked();
+
+    void on_commConfButton_clicked();
 
 signals:
     void on_controlStartup(bool on);

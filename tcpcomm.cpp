@@ -1,6 +1,6 @@
 #include "tcpcomm.h"
 
-TcpComm::TcpComm(QObject *parent = NULL, QHostAddress ipAddress, quint16 accessPort):QTcpServer(parent)
+TcpComm::TcpComm(QObject *parent, QHostAddress ipAddress, quint16 accessPort):QTcpServer(parent)
 {
     ip = ipAddress;
     port = accessPort;

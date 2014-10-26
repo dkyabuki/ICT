@@ -36,9 +36,13 @@ Registers::Registers() //inicializa registros na configuração padrão
 
     MACHINE_ID = 1;
     BAUD = 115200;
+
     SERIAL_ON = true;
-    TCP_ON = false;
     UDP_ON = false;
+    TCP_ON = false;
+
+    PORT = 45454;
+    IP = "127.0.0.1";
 }
 
 Registers::~Registers()
@@ -188,16 +192,24 @@ double Registers::getBaud(){
     return(BAUD);
 }
 
-bool Registers::getSerial(){
+bool Registers::getSerialOn(){
     return(SERIAL_ON);
 }
 
-bool Registers::getTCP(){
+bool Registers::getUdpOn(){
+    return(UDP_ON);
+}
+
+bool Registers::getTcpOn(){
     return(TCP_ON);
 }
 
-bool Registers::getUDP(){
-    return(UDP_ON);
+int Registers::getPort(){
+    return(PORT);
+}
+
+QString Registers::getIp(){
+    return(IP);
 }
 
 /*************************************/
@@ -342,14 +354,22 @@ void Registers::setBaud(double v){
     BAUD = v;
 }
 
-void Registers::setSerial(bool v){
+void Registers::setSerialOn(bool v){
     SERIAL_ON = v;
 }
 
-void Registers::setTCP(bool v){
+void Registers::setUdpOn(bool v){
+    UDP_ON = v;
+}
+
+void Registers::setTcpOn(bool v){
     TCP_ON = v;
 }
 
-void Registers::setUDP(bool v){
-    UDP_ON = v;
+void Registers::setPort(int v){
+    PORT = v;
+}
+
+void Registers::setIp(QString v){
+    IP = v;
 }

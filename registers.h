@@ -1,9 +1,14 @@
 #ifndef REGISTERS_H
 #define REGISTERS_H
 
-#define NSI 15
-#define NB 6
-#define ND 13
+#define NSI     15
+#define NB      6
+#define ND      13
+#define NI      1
+#define NST     1
+
+#include <QString>
+#include <QtNetwork>
 
 class Registers
 {
@@ -50,9 +55,14 @@ public:
 
     short int getMachineId();
     double getBaud();
-    bool getSerial();
-    bool getTCP();
-    bool getUDP();
+
+    bool getSerialOn();
+    bool getUdpOn();
+    bool getTcpOn();
+
+    int getPort();
+
+    QString getIp();
 
     void setMonitoring (short int v);
     void setSensoring (short int v);
@@ -92,9 +102,14 @@ public:
 
     void setMachineId(short int v);
     void setBaud(double v);
-    void setSerial(bool v);
-    void setTCP(bool v);
-    void setUDP(bool v);
+
+    void setSerialOn(bool v);
+    void setUdpOn(bool v);
+    void setTcpOn(bool v);
+
+    void setPort(int v);
+
+    void setIp(QString v);
 
 private:
 
@@ -115,15 +130,15 @@ private:
     short int TOR_PLOT_UNIT;     //13 (0 = v, 1 = mv, 2 = N.m, 3 = N.mm)
     short int MACHINE_ID;        //14
 
-    //Bool = 6
+    //Bool = 3
     bool ACTUATOR_ENABLE;    //0
     bool CONTROL_ENABLE;     //1
     bool SENSOR_ENABLE;      //2
     bool SERIAL_ON;          //3
-    bool TCP_ON;             //4
-    bool UDP_ON;             //5
+    bool UDP_ON;             //4
+    bool TCP_ON;             //5
 
-    //Doubles = 13
+    //Double = 13
     double POS_X_MAX;    //0
     double POS_Y_MAX;    //1
     double TOR_X_MAX;    //2
@@ -137,6 +152,12 @@ private:
     double POS_Y_STEP;   //10
     double TOR_Y_STEP;   //11
     double BAUD;         //12
+
+    //Int = 1
+    int PORT;           //0
+
+    //String = 1
+    QString IP;         //0
 };
 
 #endif // REGISTERS_H

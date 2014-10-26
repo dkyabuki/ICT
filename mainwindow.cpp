@@ -4,29 +4,40 @@
 #include <QtSerialPort/QSerialPort>
 
 typedef short int (Registers::*sigetter)(void);
-sigetter sigetters[15];
+sigetter sigetters[NSI];
 
 typedef bool (Registers::*bgetter)(void);
-bgetter bgetters[6];
+bgetter bgetters[NB];
 
 typedef double (Registers::*dgetter)(void);
-dgetter dgetters[13];
+dgetter dgetters[ND];
+
+typedef int (Registers::*igetter)(void);
+igetter igetters[NI];
+
+typedef QString (Registers::*sgetter)(void);
+sgetter sgetters[NST];
 
 typedef void (Registers::*sisetter)(short int);
-sisetter sisetters[15];
+sisetter sisetters[NSI];
 
 typedef void (Registers::*bsetter)(bool);
-bsetter bsetters[6];
+bsetter bsetters[NB];
 
 typedef void (Registers::*dsetter)(double);
-dsetter dsetters[13];
+dsetter dsetters[ND];
+
+typedef void (Registers::*isetter)(int);
+isetter isetters[NI];
+
+typedef void (Registers::*ssetter)(QString);
+ssetter ssetters[NST];
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-
     //INICIALIZACAO DE MEMBROS
     sigetters[0] = &Registers::getMonitoring;
     sigetters[1] = &Registers::getSensoring;
@@ -47,9 +58,9 @@ MainWindow::MainWindow(QWidget *parent) :
     bgetters[0] = &Registers::getSensorEnable;
     bgetters[1] = &Registers::getControlEnable;
     bgetters[2] = &Registers::getActuatorEnable;
-    bgetters[3] = &Registers::getSerial;
-    bgetters[4] = &Registers::getTCP;
-    bgetters[5] = &Registers::getUDP;
+    bgetters[3] = &Registers::getSerialOn;
+    bgetters[4] = &Registers::getUdpOn;
+    bgetters[5] = &Registers::getTcpOn;
 
     dgetters[0] = &Registers::getPosXMax;
     dgetters[1] = &Registers::getPosYMax;
@@ -64,6 +75,10 @@ MainWindow::MainWindow(QWidget *parent) :
     dgetters[10] = &Registers::getPosYStep;
     dgetters[11] = &Registers::getPosYStep;
     dgetters[12] = &Registers::getBaud;
+
+    igetters[0] = &Registers::getPort;
+
+    sgetters[0] = &Registers::getIp;
 
     sisetters[0] = &Registers::setMonitoring;
     sisetters[1] = &Registers::setSensoring;
@@ -84,9 +99,9 @@ MainWindow::MainWindow(QWidget *parent) :
     bsetters[0] = &Registers::setSensorEnable;
     bsetters[1] = &Registers::setControlEnable;
     bsetters[2] = &Registers::setActuatorEnable;
-    bsetters[3] = &Registers::setSerial;
-    bsetters[4] = &Registers::setTCP;
-    bsetters[5] = &Registers::setUDP;
+    bsetters[3] = &Registers::setSerialOn;
+    bsetters[4] = &Registers::setUdpOn;
+    bsetters[5] = &Registers::setTcpOn;
 
     dsetters[0] = &Registers::setPosXMax;
     dsetters[1] = &Registers::setPosYMax;
@@ -101,6 +116,10 @@ MainWindow::MainWindow(QWidget *parent) :
     dsetters[10] = &Registers::setPosYStep;
     dsetters[11] = &Registers::setPosYStep;
     dsetters[12] = &Registers::setBaud;
+
+    isetters[0] = &Registers::setPort;
+
+    ssetters[0] = &Registers::setIp;
 
     running = false;
     timepot = 0;
@@ -118,6 +137,16 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->torPlot->setAxisTitle(0,"Tension (V)");
     ui->torPlot->setAxisTitle(2,"Time (s)");
 
+    if(Config::reg.getSerialOn())
+    {
+        ui->comm1label->setText("Baud Rate:");
+        ui->comm2label->setText("Machine ID:");
+    }
+    else
+    {
+        ui->comm1label->setText("IP:");
+        ui->comm2label->setText("Port:");
+    }
     ui->connectionLabel->setPalette(red);
     ui->ipLabel->setPalette(red);
     ui->portLabel->setPalette(red);
@@ -309,6 +338,13 @@ void MainWindow::save_config()
         out<<"02 "<<i<<" "<<QString::number((Config::reg.*dgetters[i])())<<"\n";
     }
 
+    for (int i = 0; i < NI; i++){
+        out<<"03 "<<i<<" "<<QString::number((Config::reg.*igetters[i])())<<"\n";
+    }
+
+    for (int i = 0; i < NST; i++){
+        out<<"04 "<<i<<" "<<(Config::reg.*sgetters[i])()<<"\n";
+    }
     file.close();
 }
 
@@ -366,6 +402,28 @@ void MainWindow::load_config()
             j = list.first().toInt();
             list.pop_front();
             (Config::reg.*dsetters[j])(list.first().toDouble());
+            break;
+        case 03:
+            list.pop_front();
+            if (list.empty())
+            {
+                ui->statusBar->showMessage("Incomplete line in selected file");
+                return;
+            }
+            j = list.first().toInt();
+            list.pop_front();
+            (Config::reg.*isetters[j])(list.first().toInt());
+            break;
+        case 04:
+            list.pop_front();
+            if (list.empty())
+            {
+                ui->statusBar->showMessage("Incomplete line in selected file");
+                return;
+            }
+            j = list.first().toInt();
+            list.pop_front();
+            (Config::reg.*ssetters[j])(list.first());
             break;
         }
         line = in.readLine();
@@ -442,6 +500,23 @@ void MainWindow::on_posConfigButton_clicked()
     posplotdialog.setModal(true);
     posplotdialog.exec();
     updatePlotCanvas();
+}
+
+void MainWindow::on_commConfButton_clicked()
+{
+    DialComm commdialog;
+    commdialog.setModal(true);
+    commdialog.exec();
+    if(Config::reg.getSerialOn())
+    {
+        ui->comm1label->setText("Baud Rate:");
+        ui->comm2label->setText("Machine ID:");
+    }
+    else
+    {
+        ui->comm1label->setText("IP:");
+        ui->comm2label->setText("Port:");
+    }
 }
 
 void MainWindow::on_pushButton_clicked()

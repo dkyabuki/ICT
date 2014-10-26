@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>283</width>
-    <height>123</height>
+    <height>149</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -25,6 +25,9 @@
         <widget class="QRadioButton" name="serialButton">
          <property name="text">
           <string>Serial</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
          </property>
          <attribute name="buttonGroup">
           <string notr="true">buttonGroup</string>
@@ -65,25 +68,35 @@
        <item row="0" column="1">
         <widget class="QLineEdit" name="baudRateLineEdit"/>
        </item>
-       <item row="1" column="0">
+       <item row="2" column="0">
         <widget class="QLabel" name="ipLabel">
          <property name="text">
           <string>IP</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="1">
+       <item row="2" column="1">
         <widget class="QLineEdit" name="ipLineEdit"/>
        </item>
-       <item row="2" column="0">
+       <item row="3" column="0">
         <widget class="QLabel" name="portLabel">
          <property name="text">
           <string>Port</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="1">
+       <item row="3" column="1">
         <widget class="QLineEdit" name="portLineEdit"/>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="machineIDLabel">
+         <property name="text">
+          <string>Machine ID</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLineEdit" name="machineIDLineEdit"/>
        </item>
       </layout>
      </item>

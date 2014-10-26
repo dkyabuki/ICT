@@ -15,6 +15,17 @@ public:
     explicit DialComm(QWidget *parent = 0);
     ~DialComm();
 
+private slots:
+    void on_buttonBox_accepted();
+
+    void on_buttonBox_rejected();
+
+    void on_serialButton_clicked(bool checked);
+
+    void on_udpButton_clicked(bool checked);
+
+    void on_tcpButton_clicked(bool checked);
+
 private:
     Ui::DialComm *ui;
 };

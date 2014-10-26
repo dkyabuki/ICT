@@ -7,7 +7,7 @@ class TcpComm : public QTcpServer
 {
 
 public:
-    TcpComm(QObject *parent = NULL, QHostAddress ipAddress, quint16 accessPort);
+    TcpComm(QObject *parent = NULL, QHostAddress ipAddress = QHostAddress::LocalHost, quint16 accessPort = 45454);
 
 private:
     quint16 blockSize;
