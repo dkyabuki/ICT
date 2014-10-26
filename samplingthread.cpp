@@ -5,12 +5,9 @@
 SamplingThread::SamplingThread(QObject *parent):QwtSamplingThread(parent)
 {
     active = false;
-#ifdef __UDP_COMM
     udpmgr = new UdpComm(this);
-#endif
-#ifdef __TCP_COMM
     tcpmgr = new TcpComm(this, ip, port);
-#endif
+    x=0;
 }
 
 SamplingThread::~SamplingThread()
@@ -29,9 +26,7 @@ void SamplingThread::initiate()
 //    blockSize = 0;
 //    connect(tcpSocket, SIGNAL(connected()), this, SLOT(on_connection()));
     active = true;
-#ifdef __UDP_COMM
     udpmgr->bind(45454, UdpComm::ShareAddress);
-#endif
     start();
 }
 
@@ -47,35 +42,34 @@ void SamplingThread::initiate()
 void SamplingThread::halt()
 {
 //    tcpSocket->disconnectFromHost();
-#ifdef __UDP_COMM
     udpmgr->abort();
-#endif
     stop();
 }
 
 //Nao funcional - Executada a cada x ms
 void SamplingThread::sample( double elapsed )
 {
+    Q_UNUSED(elapsed);
     if(active)
     {
         /*************************/
         /*    Conexao por UDP    */
         /*************************/
-#ifdef __UDP_COMM
         if(udpmgr->hasPendingDatagrams())
         {
             QStringList query = udpmgr->udpRead();
             if(!UdpComm::datagramIsWrong(query))
             {
-                plot(query);
+                if(query[0].toInt() == 00)
+                    emit showMsg("tipo = " + query[1]);
+                else
+                    plot(query);
             }
             else
             {
                 emit showMsg("Erro ao ler valores");
             }
         }
-#endif
-
     }
 }
 
@@ -141,20 +135,11 @@ void SamplingThread::sample( double elapsed )
 void SamplingThread::pause(bool running)
 {
     active = !running;
-#ifdef __TCP_COMM
-    if(!active)
 
-    else
-
-#endif
-
-#ifdef __UDP_COMM
     if(!active)
         udpmgr->abort();
     else
         udpmgr->bind(45454, UdpComm::ShareAddress);
-#endif
-
 }
 
 void SamplingThread::commConfig(QHostAddress ipconf, quint16 portconf)
@@ -165,10 +150,9 @@ void SamplingThread::commConfig(QHostAddress ipconf, quint16 portconf)
 
 void SamplingThread::plot(QStringList query)
 {
-    double x;
-    x = query[1].toDouble()/1000.00;
-    const QPointF p(x, query[2].toDouble()/1000.00);
-    const QPointF t(x, query[3].toDouble()/1000.00);
+    x += 0.002;
+    const QPointF p(x, query[1].toDouble()/1000.00);
+    const QPointF t(x, query[2].toDouble()/1000.00);
     emit pointAppendedPot(p);
     emit pointAppendedExt(t);
 }

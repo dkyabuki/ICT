@@ -50,6 +50,7 @@ private:
     QHostAddress ip;
     UdpComm *udpmgr;
     TcpComm *tcpmgr;
+    double x;
 };
 
 #endif // SAMPLINGTHREAD_H

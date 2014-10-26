@@ -239,34 +239,34 @@ void MainWindow::show_error(QString str)
     ui->statusBar->showMessage(str);
 }
 
-void MainWindow::update_connection(QStringList str)
+void MainWindow::update_connection(QStringList *str)
 {
-    if(str.size() != 3){
+    if(str->size() != 3){
         ui->statusBar->showMessage("Error in GUI update - Connection: size of the config stringlist is larger than 3");
         return;
     }
 
-    for(int i = 0; i < str.size(); i++)
+    for(int i = 0; i < str->size(); i++)
     {
         switch(i)
         {
         case 0:
-            ui->connectionLabel->setText(str[i]);
-            if(QString::compare(str[i],"Disconnected",Qt::CaseInsensitive) != 0)
+            ui->connectionLabel->setText((*str)[i]);
+            if(QString::compare((*str)[i],"Disconnected",Qt::CaseInsensitive) != 0)
                 ui->connectionLabel->setPalette(black);
             else
                 ui->connectionLabel->setPalette(red);
             break;
         case 1:
-            ui->ipLabel->setText(str[i]);
-            if(QString::compare(str[i],"-",Qt::CaseInsensitive) != 0)
+            ui->ipLabel->setText((*str)[i]);
+            if(QString::compare((*str)[i],"-",Qt::CaseInsensitive) != 0)
                 ui->ipLabel->setPalette(black);
             else
                 ui->ipLabel->setPalette(red);
             break;
         case 2:
-            ui->portLabel->setText(str[i]);
-            if(QString::compare(str[i],"-",Qt::CaseInsensitive) != 0)
+            ui->portLabel->setText((*str)[i]);
+            if(QString::compare((*str)[i],"-",Qt::CaseInsensitive) != 0)
                 ui->portLabel->setPalette(black);
             else
                 ui->portLabel->setPalette(red);
@@ -293,6 +293,28 @@ void MainWindow::control_signal_emitted(bool on)
     ui->controlPauseButton->setEnabled(on);
     ui->controlStopButton->setEnabled(on);
     ui->menuBar->setEnabled(!on);
+    QStringList *connectioncfg = new QStringList();
+    if(on)
+    {
+        connectioncfg->append("Listening to");
+        if(Config::reg.getSerialOn())
+        {
+            connectioncfg->append(QString::number(Config::reg.getBaud()));
+            connectioncfg->append(QString::number(Config::reg.getMachineId()));
+        }
+        else
+        {
+            connectioncfg->append(Config::reg.getIp());
+            connectioncfg->append(QString::number(Config::reg.getPort()));
+        }
+    }
+    else
+    {
+        connectioncfg->append("Disconnected");
+        connectioncfg->append("-");
+        connectioncfg->append("-");
+    }
+    update_connection(connectioncfg);
     running = on;
 }
 
@@ -304,6 +326,20 @@ void MainWindow::control_pause_signal_emitted(bool on)
     ui->torSaveButton->setEnabled(on);
     ui->controlStopButton->setEnabled(!on);
     ui->controlPauseButton->setText(on? "Continue":"Pause");
+    QStringList *connectioncfg = new QStringList();
+    if(!on)
+    {
+        connectioncfg->append("Listening to");
+        connectioncfg->append(Config::reg.getIp());
+        connectioncfg->append(QString::number(Config::reg.getPort()));
+    }
+    else
+    {
+        connectioncfg->append("Paused");
+        connectioncfg->append(Config::reg.getIp());
+        connectioncfg->append(QString::number(Config::reg.getPort()));
+    }
+    update_connection(connectioncfg);
     running = !on;
 }
 

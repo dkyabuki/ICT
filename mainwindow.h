@@ -49,7 +49,7 @@ private slots:
 
     void show_error(QString str);
 
-    void update_connection(QStringList str);
+    void update_connection(QStringList *str);
 
     void control_signal_emitted(bool on);
 
