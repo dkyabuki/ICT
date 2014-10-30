@@ -79,6 +79,7 @@ MainWindow::MainWindow(QWidget *parent) :
     igetters[0] = &Registers::getPort;
 
     sgetters[0] = &Registers::getIp;
+    sgetters[1] = &Registers::getSerialPort;
 
     sisetters[0] = &Registers::setMonitoring;
     sisetters[1] = &Registers::setSensoring;
@@ -120,6 +121,7 @@ MainWindow::MainWindow(QWidget *parent) :
     isetters[0] = &Registers::setPort;
 
     ssetters[0] = &Registers::setIp;
+    ssetters[1] = &Registers::setSerialPort;
 
     running = false;
     timepot = 0;

@@ -5,7 +5,7 @@
 #define NB      6
 #define ND      13
 #define NI      1
-#define NST     1
+#define NST     2
 
 #include <QString>
 #include <QtNetwork>
@@ -63,6 +63,7 @@ public:
     int getPort();
 
     QString getIp();
+    QString getSerialPort();
 
     void setMonitoring (short int v);
     void setSensoring (short int v);
@@ -110,6 +111,7 @@ public:
     void setPort(int v);
 
     void setIp(QString v);
+    void setSerialPort(QString v);
 
 private:
 
@@ -157,7 +159,8 @@ private:
     int PORT;           //0
 
     //String = 1
-    QString IP;         //0
+    QString IP;             //0
+    QString SERIAL_PORT;    //1
 };
 
 #endif // REGISTERS_H

@@ -43,6 +43,7 @@ Registers::Registers() //inicializa registros na configuração padrão
 
     PORT = 45454;
     IP = "127.0.0.1";
+    SERIAL_PORT = "";
 }
 
 Registers::~Registers()
@@ -212,6 +213,10 @@ QString Registers::getIp(){
     return(IP);
 }
 
+QString Registers::getSerialPort(){
+    return(SERIAL_PORT);
+}
+
 /*************************************/
 /*              SETTERS              */
 /*************************************/
@@ -372,4 +377,8 @@ void Registers::setPort(int v){
 
 void Registers::setIp(QString v){
     IP = v;
+}
+
+void Registers::setSerialPort(QString v){
+    SERIAL_PORT = v;
 }

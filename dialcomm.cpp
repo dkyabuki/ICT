@@ -18,6 +18,8 @@ DialComm::DialComm(QWidget *parent) :
         ui->machineIDLineEdit->setEnabled(true);
         ui->ipLineEdit->setEnabled(false);
         ui->portLineEdit->setEnabled(false);
+        ui->serialCombo->setEnabled(true);
+        updateSerial();
     }
     else if (Config::reg.getUdpOn())
     {
@@ -51,6 +53,7 @@ void DialComm::on_buttonBox_accepted()
         Config::reg.setSerialOn(true);
         Config::reg.setUdpOn(false);
         Config::reg.setTcpOn(false);
+        Config::reg.setSerialPort(ui->serialCombo->currentText());
     }
     else if(ui->udpButton->isChecked())
     {
@@ -81,6 +84,8 @@ void DialComm::on_serialButton_clicked(bool checked)
     ui->machineIDLineEdit->setEnabled(checked);
     ui->ipLineEdit->setEnabled(!checked);
     ui->portLineEdit->setEnabled(!checked);
+    ui->serialCombo->setEnabled(checked);
+    updateSerial();
 }
 
 void DialComm::on_udpButton_clicked(bool checked)
@@ -89,6 +94,7 @@ void DialComm::on_udpButton_clicked(bool checked)
     ui->machineIDLineEdit->setEnabled(!checked);
     ui->ipLineEdit->setEnabled(checked);
     ui->portLineEdit->setEnabled(checked);
+    ui->serialCombo->setEnabled(!checked);
 }
 
 void DialComm::on_tcpButton_clicked(bool checked)
@@ -97,4 +103,11 @@ void DialComm::on_tcpButton_clicked(bool checked)
     ui->machineIDLineEdit->setEnabled(!checked);
     ui->ipLineEdit->setEnabled(checked);
     ui->portLineEdit->setEnabled(checked);
+    ui->serialCombo->setEnabled(!checked);
+}
+
+void DialComm::updateSerial()
+{
+    foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts())
+        ui->serialCombo->addItem(info.portName());
 }

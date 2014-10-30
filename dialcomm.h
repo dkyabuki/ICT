@@ -2,6 +2,7 @@
 #define DIALCOMM_H
 
 #include <QDialog>
+#include <QtSerialPort/QSerialPortInfo>
 
 namespace Ui {
 class DialComm;
@@ -27,6 +28,8 @@ private slots:
     void on_tcpButton_clicked(bool checked);
 
 private:
+    void updateSerial();
+
     Ui::DialComm *ui;
 };
 
