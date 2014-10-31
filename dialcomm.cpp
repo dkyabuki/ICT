@@ -20,6 +20,7 @@ DialComm::DialComm(QWidget *parent) :
         ui->portLineEdit->setEnabled(false);
         ui->serialCombo->setEnabled(true);
         updateSerial();
+        ui->serialCombo->setCurrentText(Config::reg.getSerialPort());
     }
     else if (Config::reg.getUdpOn())
     {
@@ -108,6 +109,6 @@ void DialComm::on_tcpButton_clicked(bool checked)
 
 void DialComm::updateSerial()
 {
-    foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts())
+    foreach(const QSerialPortInfo &info, QSerialPortInfo::availablePorts())
         ui->serialCombo->addItem(info.portName());
 }
