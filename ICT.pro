@@ -28,8 +28,8 @@ SOURCES += main.cpp\
     dialcomm.cpp \
     udpcomm.cpp \
     sequenceplot.cpp \
-    samplingthread.cpp \
-    serialcomm.cpp
+    serialcomm.cpp \
+    threadStarter.cpp
 
 
 
@@ -47,8 +47,8 @@ HEADERS  += mainwindow.h \
     dialcomm.h \
     udpcomm.h \
     sequenceplot.h \
-    samplingthread.h \
-    serialcomm.h
+    serialcomm.h \
+    threadStarter.h
 
 FORMS    += mainwindow.ui \
     dialt.ui \

@@ -9,6 +9,7 @@ public:
     UdpComm(QObject *parent = NULL);
     QStringList udpRead();
     static bool datagramIsWrong(QStringList query);
+    void process();
 
 private:
     #pragma pack(push,before)

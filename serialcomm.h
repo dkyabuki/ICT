@@ -28,23 +28,27 @@ public:
 #pragma pack(pop, before)
 
 signals:
-    void readReady();
+    void show_message(QString msg);
+    void show_error(QString error);
+    void finished();
 
 public slots:
     void process();
     int setPort(QString portName);
-    int config();
-    int open();
     void close();
     bool isOpen();
-    void emitReadSignal();
     CommMessage* readMsg();
     QString test();
 
 private slots:
     void sendQuery(CommMessage message);
+    void config();
+    void start();
+    void stop();
+    void pause();
 
 private:
+    bool active;
     QSerialPort *portNo;
     char* IdList;
     char* thisId;

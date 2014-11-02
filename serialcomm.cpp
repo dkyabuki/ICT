@@ -3,61 +3,12 @@
 SerialComm::SerialComm(QObject *parent) :
     QObject(parent)
 {
+    active = false;
 }
 
 int SerialComm::setPort(QString portName)
 {
-    if (portNo != NULL)
-        free(portNo);
-    foreach(const QSerialPortInfo info, QSerialPortInfo::availablePorts())
-    {
-        if(QString::compare(info.portName(), portName) == 0)
-            portNo = new QSerialPort(portName);
-    }
-    if(portNo != NULL)
-    {
-        connect(portNo, SIGNAL(readyRead()), this, SLOT(emitReadSignal()));
-        return 0;
-    }
-    else
-        return -1;
-}
 
-int SerialComm::config()
-{
-    if (portNo != NULL)
-    {
-        if(!portNo->setBaudRate((qint32)Config::reg.getBaud()))
-            return -1;
-        if(!portNo->setDataBits(QSerialPort::Data8))
-            return -1;
-        if(!portNo->setParity(QSerialPort::NoParity))
-            return -1;
-        if(!portNo->setStopBits(QSerialPort::OneStop))
-            return -1;
-        if(!portNo->setFlowControl(QSerialPort::NoFlowControl))
-            return -1;
-
-        QByteArray temp = QString::number(Config::reg.getMachineId()).toLocal8Bit();
-        thisId = temp.data();
-    }
-    return -1;
-}
-
-void SerialComm::sendQuery(CommMessage message)
-{
-
-}
-
-int SerialComm::open()
-{
-    if(portNo->isOpen())
-    {
-        portNo->close();
-    }
-    if(!portNo->open(QIODevice::ReadWrite))
-        return -1;
-    return 0;
 }
 
 SerialComm::CommMessage* SerialComm::readMsg()
@@ -86,7 +37,85 @@ void SerialComm::close()
     portNo->close();
 }
 
-void SerialComm::emitReadSignal()
+void SerialComm::process()
 {
-    emit(readReady());
+
+}
+
+void SerialComm::sendQuery(CommMessage message)
+{
+
+}
+
+void SerialComm::start()
+{
+
+}
+
+void SerialComm::stop()
+{
+    if(portNo->isOpen())
+        portNo->close();
+    portNo->deleteLater();
+    free(IdList);
+    free(thisId);
+    emit(finished());
+}
+
+void SerialComm::pause()
+{
+
+}
+
+void SerialComm::config()
+{
+    if (portNo != NULL)
+        free(portNo);
+    foreach(const QSerialPortInfo info, QSerialPortInfo::availablePorts())
+    {
+        if(QString::compare(info.portName(), Config::reg.getSerialPort()) == 0)
+            portNo = new QSerialPort(info.portName());
+    }
+    if (portNo != NULL)
+    {
+        if(!portNo->open(QIODevice::ReadWrite))
+        {
+            emit(show_error("Não foi possível abrir a porta serial"));
+            return;
+        }
+
+        if (portNo != NULL)
+        {
+            if(!portNo->setBaudRate((qint32)Config::reg.getBaud()))
+            {
+                emit(show_error("Não foi possível ajustar o Baud"));
+                return;
+            }
+            if(!portNo->setDataBits(QSerialPort::Data8))
+            {
+                emit(show_error("Não foi possível ajustar o tamanho dos dados"));
+                return;
+            }
+            if(!portNo->setParity(QSerialPort::NoParity))
+            {
+                emit(show_error("Não foi possível ajustar a paridade dos bits"));
+                return;
+            }
+            if(!portNo->setStopBits(QSerialPort::OneStop))
+            {
+                emit(show_error("Não foi possível ajustar o stop bit"));
+                return;
+            }
+            if(!portNo->setFlowControl(QSerialPort::NoFlowControl))
+            {
+                emit(show_error("Não foi possível ajustar o controle de fluxo"));
+                return;
+            }
+            QByteArray temp = QString::number(Config::reg.getMachineId()).toLocal8Bit();
+            thisId = temp.data();
+        }
+    }
+    else
+        emit(show_error("Náo foi possível encontrar a porta serial"));
+    return;
 }

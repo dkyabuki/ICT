@@ -10,7 +10,7 @@
 #include "dialposplot.h"
 #include "dialquit.h"
 #include "sequenceplot.h"
-#include "samplingthread.h"
+#include "threadStarter.h"
 #include "dialcomm.h"
 #include <QFileDialog>
 #include <QFile>
@@ -75,7 +75,7 @@ signals:
     void comm_config(QHostAddress ipconf, quint16 portconf);
 
 private:
-    SamplingThread *samplingThread;
+    threadStarter *thread;
     double timepot, timetor;
     QPalette red;
     QPalette black;

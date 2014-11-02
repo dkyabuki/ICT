@@ -124,7 +124,7 @@ MainWindow::MainWindow(QWidget *parent) :
     timetor = 0;
     red.setColor(QPalette::WindowText,Qt::red);
     black.setColor(QPalette::WindowText,Qt::black);
-    samplingThread = new SamplingThread(this);
+    thread = new threadStarter(this);
 
     ui->potPlot->setAxisScale(0,-20,20,5);
     ui->potPlot->setAxisScale(2,0,1,0.1);
@@ -156,18 +156,18 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionLoad_Config, SIGNAL(triggered()), this, SLOT(load_config()));
     connect(this, SIGNAL(on_controlStartup(bool)), this, SLOT(control_signal_emitted(bool)),Qt::DirectConnection);
     connect(this, SIGNAL(on_controlPause(bool)), this, SLOT(control_pause_signal_emitted(bool)),Qt::DirectConnection);
-    connect(samplingThread, SIGNAL(showError(QString)), this, SLOT(show_error(QString)),Qt::QueuedConnection);
-    connect(samplingThread, SIGNAL(showMsg(QString)), this, SLOT(show_status(QString)), Qt::QueuedConnection);
-    connect(samplingThread, SIGNAL(updateGUI(QStringList)), this, SLOT(update_connection(QStringList)));
-    connect(samplingThread, SIGNAL(pointAppendedPot(QPointF)), this, SLOT(append_pos(const QPointF)),Qt::QueuedConnection);
-    connect(samplingThread, SIGNAL(pointAppendedExt(QPointF)), this, SLOT(append_ext(const QPointF)),Qt::QueuedConnection);
-    connect(this, SIGNAL(on_controlPause(bool)),samplingThread,SLOT(pause(bool)),Qt::QueuedConnection);
+//    connect(samplingThread, SIGNAL(showError(QString)), this, SLOT(show_error(QString)),Qt::QueuedConnection);
+//    connect(samplingThread, SIGNAL(showMsg(QString)), this, SLOT(show_status(QString)), Qt::QueuedConnection);
+//    connect(samplingThread, SIGNAL(updateGUI(QStringList)), this, SLOT(update_connection(QStringList)));
+//    connect(samplingThread, SIGNAL(pointAppendedPot(QPointF)), this, SLOT(append_pos(const QPointF)),Qt::QueuedConnection);
+//    connect(samplingThread, SIGNAL(pointAppendedExt(QPointF)), this, SLOT(append_ext(const QPointF)),Qt::QueuedConnection);
+//    connect(this, SIGNAL(on_controlPause(bool)),samplingThread,SLOT(pause(bool)),Qt::QueuedConnection);
     emit on_controlStartup(false);
 }
 
 MainWindow::~MainWindow()
 {
-    samplingThread->stop();
+//    thread->quit();
     delete ui;
 }
 
@@ -596,8 +596,8 @@ void MainWindow::on_controlStartButton_clicked()
     }
     update_plot_canvas();
     emit on_controlStartup(true);
-    samplingThread->setInterval(1);
-    samplingThread->initiate();
+//    samplingThread->setInterval(1);
+//    samplingThread->initiate();
 }
 
 void MainWindow::on_controlPauseButton_clicked()
@@ -608,6 +608,6 @@ void MainWindow::on_controlPauseButton_clicked()
 void MainWindow::on_controlStopButton_clicked()
 {
     emit on_controlStartup(false);
-    samplingThread->halt();
+//    samplingThread->halt();
 }
 

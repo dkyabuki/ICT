@@ -108,15 +108,6 @@ void DialComm::on_udpButton_clicked(bool checked)
     ui->serialCombo->setEnabled(!checked);
 }
 
-void DialComm::on_tcpButton_clicked(bool checked)
-{
-    ui->baudBox->setEnabled(!checked);
-    ui->machineIDLineEdit->setEnabled(!checked);
-    ui->ipLineEdit->setEnabled(checked);
-    ui->portLineEdit->setEnabled(checked);
-    ui->serialCombo->setEnabled(!checked);
-}
-
 void DialComm::updateSerial()
 {
     ui->serialCombo->addItem("");

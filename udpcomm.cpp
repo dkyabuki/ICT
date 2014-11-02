@@ -52,3 +52,8 @@ bool UdpComm::datagramIsWrong(QStringList query)
     }
     return(true);
 }
+
+void UdpComm::process()
+{
+
+}
