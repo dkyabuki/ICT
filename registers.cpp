@@ -13,7 +13,6 @@ Registers::Registers() //inicializa registros na configuração padrão
     ACTUATOR_PERIOD = 2;
     SERIAL_PRIORITY = 100;
     SERIAL_PERIOD = 2;
-    MODE = 0;
     POS_PLOT_UNIT = 0;
     TOR_PLOT_UNIT = 0;
 
@@ -122,11 +121,6 @@ short int Registers::getSerialPriority()
 short int Registers::getSerialPeriod()
 {
     return (SERIAL_PERIOD);
-}
-
-short int Registers::getMode()
-{
-    return(MODE);
 }
 
 short int Registers::getPosPlotUnit(){
@@ -288,11 +282,6 @@ void Registers::setSerialPriority(short int v)
 void Registers::setSerialPeriod(short int v)
 {
     SERIAL_PERIOD = v;
-}
-
-void Registers::setMode(short int v)
-{
-    MODE = v;
 }
 
 void Registers::setPosPlotUnit(short int v){

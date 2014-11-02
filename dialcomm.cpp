@@ -11,6 +11,7 @@ DialComm::DialComm(QWidget *parent) :
     ui->ipLineEdit->setText(Config::reg.getIp());
     ui->machineIDLineEdit->setText(QString::number(Config::reg.getMachineId()));
     ui->portLineEdit->setText(QString::number(Config::reg.getPort()));
+    updateSerial();
     if(Config::reg.getSerialOn())
     {
         ui->serialButton->setChecked(true);
@@ -19,8 +20,22 @@ DialComm::DialComm(QWidget *parent) :
         ui->ipLineEdit->setEnabled(false);
         ui->portLineEdit->setEnabled(false);
         ui->serialCombo->setEnabled(true);
-        updateSerial();
-        ui->serialCombo->setCurrentText(Config::reg.getSerialPort());
+        int index = 0;
+        if (QString::compare(Config::reg.getSerialPort(), "") != 0)
+            foreach(const QSerialPortInfo &info, QSerialPortInfo::availablePorts())
+            {
+                index++;
+                if (QString::compare(info.portName(), Config::reg.getSerialPort()) == 0)
+                {
+                    ui->serialCombo->setCurrentIndex(index);
+                    break;
+                }
+            }
+        else
+            ui->serialCombo->setCurrentIndex(0);
+
+        if(ui->serialCombo->currentIndex() == 0)
+            ui->buttonBox->buttons()[0]->setEnabled(false);
     }
     else if (Config::reg.getUdpOn())
     {
@@ -86,7 +101,6 @@ void DialComm::on_serialButton_clicked(bool checked)
     ui->ipLineEdit->setEnabled(!checked);
     ui->portLineEdit->setEnabled(!checked);
     ui->serialCombo->setEnabled(checked);
-    updateSerial();
 }
 
 void DialComm::on_udpButton_clicked(bool checked)
@@ -109,6 +123,38 @@ void DialComm::on_tcpButton_clicked(bool checked)
 
 void DialComm::updateSerial()
 {
+    ui->serialCombo->addItem("");
     foreach(const QSerialPortInfo &info, QSerialPortInfo::availablePorts())
         ui->serialCombo->addItem(info.portName());
+}
+
+void DialComm::on_udpButton_toggled(bool checked)
+{
+    if(checked)
+        ui->buttonBox->buttons()[0]->setEnabled(true);
+}
+
+void DialComm::on_tcpButton_toggled(bool checked)
+{
+    if(checked)
+        ui->buttonBox->buttons()[0]->setEnabled(true);
+}
+
+void DialComm::on_serialButton_toggled(bool checked)
+{
+    bool isSelected;
+    if(ui->serialCombo->currentIndex() == 0)
+        isSelected = false;
+    else
+        isSelected = true;
+    if(checked)
+        ui->buttonBox->buttons()[0]->setEnabled(isSelected);
+}
+
+void DialComm::on_serialCombo_currentIndexChanged(int index)
+{
+    if(index == 0)
+        ui->buttonBox->buttons()[0]->setEnabled(false);
+    else
+        ui->buttonBox->buttons()[0]->setEnabled(true);
 }

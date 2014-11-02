@@ -27,6 +27,14 @@ private slots:
 
     void on_tcpButton_clicked(bool checked);
 
+    void on_udpButton_toggled(bool checked);
+
+    void on_tcpButton_toggled(bool checked);
+
+    void on_serialButton_toggled(bool checked);
+
+    void on_serialCombo_currentIndexChanged(int index);
+
 private:
     void updateSerial();
 

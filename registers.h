@@ -1,7 +1,7 @@
 #ifndef REGISTERS_H
 #define REGISTERS_H
 
-#define NSI     15
+#define NSI     14
 #define NB      6
 #define ND      13
 #define NI      1
@@ -35,8 +35,6 @@ public:
 
     short int getSerialPriority();
     short int getSerialPeriod();
-
-    short int getMode();
 
     short int getPosPlotUnit();
     short int getTorPlotUnit();
@@ -84,8 +82,6 @@ public:
     void setSerialPriority(short int v);
     void setSerialPeriod(short int v);
 
-    void setMode(short int v);
-
     void setPosPlotUnit(short int v);
     void setTorPlotUnit(short int v);
     void setPosXMax(double v);
@@ -127,10 +123,9 @@ private:
     short int ACTUATOR_PERIOD;   //8
     short int SERIAL_PRIORITY;   //9
     short int SERIAL_PERIOD;     //10
-    short int MODE;              //11 (0 = position, 1 = torque)
-    short int POS_PLOT_UNIT;     //12 (0 = v, 1 = mv, 2 = deg, 3 = rad)
-    short int TOR_PLOT_UNIT;     //13 (0 = v, 1 = mv, 2 = N.m, 3 = N.mm)
-    short int MACHINE_ID;        //14
+    short int POS_PLOT_UNIT;     //11 (0 = v, 1 = mv, 2 = deg, 3 = rad)
+    short int TOR_PLOT_UNIT;     //12 (0 = v, 1 = mv, 2 = N.m, 3 = N.mm)
+    short int MACHINE_ID;        //13
 
     //Bool = 3
     bool ACTUATOR_ENABLE;    //0

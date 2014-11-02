@@ -5,7 +5,6 @@
 #include "config.h"
 #include "dialt.h"
 #include "dialr.h"
-#include "dialm.h"
 #include "dialogc.h"
 #include "dialtorplot.h"
 #include "dialposplot.h"
@@ -23,6 +22,7 @@
 #include <qwt_plot_marker.h>
 #include <qwt_symbol.h>
 #include <qwt_plot_item.h>
+#include <QErrorMessage>
 
 namespace Ui {
 class MainWindow;
@@ -37,55 +37,41 @@ public:
     ~MainWindow();
 
 private slots:
+
+    //Utilities
     void close_program();
-
     void save_config();
-
     void load_config();
 
+    //Plot
+    void update_plot_canvas();
     void append_pos(const QPointF &point);
-
     void append_ext(const QPointF &point);
 
-    void show_error(QString str);
-
-    void update_connection(QStringList *str);
-
+    //GUI related
     void control_signal_emitted(bool on);
-
     void control_pause_signal_emitted(bool on);
+    void show_error(QString str);
+    void show_status(QString str);
+    void update_connection(QStringList str);
 
+    //Button slots
     void on_taskButton_clicked();
-
     void on_convButton_clicked();
-
     void on_regButton_clicked();
-
-    void on_modeButton_clicked();
-
     void on_posSaveButton_clicked();
-
     void on_torSaveButton_clicked();
-
     void on_torConfigButton_clicked();
-
     void on_posConfigButton_clicked();
-
     void on_pushButton_clicked();
-    
     void on_controlStartButton_clicked();
-
     void on_controlPauseButton_clicked();
-
     void on_controlStopButton_clicked();
-
     void on_commConfButton_clicked();
 
 signals:
     void on_controlStartup(bool on);
-
     void on_controlPause(bool on);
-
     void comm_config(QHostAddress ipconf, quint16 portconf);
 
 private:
@@ -93,7 +79,6 @@ private:
     double timepot, timetor;
     QPalette red;
     QPalette black;
-    void updatePlotCanvas();
     Ui::MainWindow *ui;
     bool running;
 };

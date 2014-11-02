@@ -5,8 +5,14 @@
 SamplingThread::SamplingThread(QObject *parent):QwtSamplingThread(parent)
 {
     active = false;
-    udpmgr = new UdpComm(this);
-    tcpmgr = new TcpComm(this, ip, port);
+    if(Config::reg.getUdpOn())
+        udpmgr = new UdpComm(this);
+    else if(Config::reg.getTcpOn())
+        tcpmgr = new TcpComm(this);
+    else if(Config::reg.getSerialOn())
+        serialmgr = new SerialComm(this);
+    else
+        emit(showError("Nenhuma forma de comunicação foi selecionada"));
     x=0;
 }
 
@@ -18,16 +24,35 @@ SamplingThread::~SamplingThread()
 //Inicia o thread
 void SamplingThread::initiate()
 {
-//    if (ip.isEmpty())
-//        ip = QHostAddress(QHostAddress::LocalHost).toString();
+    if (Config::reg.getTcpOn())
+    {
 
-//    tcpSocket->connectToHost(ip, 45454);
-//    connectionConfig = QStringList()<<"TCP"<<ip<<"45454";
-//    blockSize = 0;
-//    connect(tcpSocket, SIGNAL(connected()), this, SLOT(on_connection()));
-    active = true;
-    udpmgr->bind(45454, UdpComm::ShareAddress);
-    start();
+//        tcpSocket->connectToHost(ip, 45454);
+//        connectionConfig = QStringList()<<"TCP"<<ip<<"45454";
+//        blockSize = 0;
+//        connect(tcpSocket, SIGNAL(connected()), this, SLOT(on_connection()));
+        active = true;
+    }
+    if (Config::reg.getUdpOn())
+    {
+        udpmgr->bind(45454, UdpComm::ShareAddress);
+        start();
+        active = true;
+    }
+    if (Config::reg.getSerialOn())
+    {
+        if (serialmgr->setPort(Config::reg.getSerialPort()) == 0)
+        {
+            serialmgr->config();
+            if(serialmgr->open() != 0)
+            {
+                emit(showError("Could not open serial port"));
+                return;
+            }
+            start();
+            active = true;
+        }
+    }
 }
 
 //Executa quando uma conexao TCP eh feita
@@ -42,7 +67,10 @@ void SamplingThread::initiate()
 void SamplingThread::halt()
 {
 //    tcpSocket->disconnectFromHost();
-    udpmgr->abort();
+//    udpmgr->abort();
+    if(Config::reg.getSerialOn())
+        if(serialmgr->isOpen())
+            serialmgr->close();
     stop();
 }
 
@@ -55,22 +83,38 @@ void SamplingThread::sample( double elapsed )
         /*************************/
         /*    Conexao por UDP    */
         /*************************/
-        if(udpmgr->hasPendingDatagrams())
+        if(Config::reg.getUdpOn())
         {
-            QStringList query = udpmgr->udpRead();
-            if(!UdpComm::datagramIsWrong(query))
+            if(udpmgr->hasPendingDatagrams())
             {
-                if(query[0].toInt() == 00)
-                    emit showMsg("tipo = " + query[1]);
+                QStringList query = udpmgr->udpRead();
+                if(!UdpComm::datagramIsWrong(query))
+                {
+                    if(query[0].toInt() == 00)
+                        emit showMsg("tipo = " + query[1]);
+                    else
+                        plot(query);
+                }
                 else
-                    plot(query);
-            }
-            else
-            {
-                emit showMsg("Erro ao ler valores");
+                {
+                    emit showError("Erro ao ler valores");
+                }
             }
         }
+        /*************************/
+        /*   Conexao por SERIAL  */
+        /*************************/
+        else if(Config::reg.getSerialOn())
+        {
+
+            emit(showMsg(serialmgr->test()));
+        }
     }
+//    std::stringstream ss;
+//    ss<<QThread::currentThreadId();
+//    QString str;
+//    str = QString::fromStdString(ss.str());
+//    emit showMsg("thread ID " + str);
 }
 
 /*************************/
@@ -140,12 +184,6 @@ void SamplingThread::pause(bool running)
         udpmgr->abort();
     else
         udpmgr->bind(45454, UdpComm::ShareAddress);
-}
-
-void SamplingThread::commConfig(QHostAddress ipconf, quint16 portconf)
-{
-    ip = ipconf;
-    port = portconf;
 }
 
 void SamplingThread::plot(QStringList query)

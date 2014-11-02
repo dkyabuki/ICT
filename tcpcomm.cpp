@@ -1,9 +1,13 @@
 #include "tcpcomm.h"
 
-TcpComm::TcpComm(QObject *parent, QHostAddress ipAddress, quint16 accessPort):QTcpServer(parent)
+TcpComm::TcpComm(QObject *parent)
 {
-    ip = ipAddress;
-    port = accessPort;
-    connect(this, SIGNAL(newConnection()), this, SLOT(tcpReady()));
+    Q_UNUSED(parent);
+//    connect(this, SIGNAL(newConnection()), this, SLOT(tcpReady()));
     currentMessage = " ";
+}
+
+void TcpComm::tcpReady()
+{
+
 }

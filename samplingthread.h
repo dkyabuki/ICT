@@ -4,9 +4,12 @@
 #include "sequenceplot.h"
 #include "udpcomm.h"
 #include "tcpcomm.h"
+#include "serialcomm.h"
 #include <qwt_series_data.h>
 #include <QTime>
 #include <QString>
+#include <sstream>
+#include "config.h"
 
 class SamplingThread : public QwtSamplingThread
 {
@@ -25,31 +28,29 @@ signals:
     void pointAppendedPot(const QPointF point);
     void pointAppendedExt(const QPointF point);
     void showMsg(QString str);
+    void showError(QString str);
     void updateGUI(QStringList strl);
 
 private slots:
 //    void on_connection();
     void pause(bool paused);
-    void commConfig(QHostAddress ipconf, quint16 portconf);
 //    void tcpReady();
 //    void tcpError(QAbstractSocket::SocketError se);
 //    void requestNewMsg();
+    void plot(QStringList query);
 
 protected:
     virtual void sample (double elapsed);
 
 private:
-    void plot(QStringList query);
-
-    int restartTime;
     bool active;
     QTime time;
-//    QStringList connectionConfig;
 
-    quint16 port;
-    QHostAddress ip;
+//    quint16 port;
+//    QHostAddress ip;
     UdpComm *udpmgr;
     TcpComm *tcpmgr;
+    SerialComm *serialmgr;
     double x;
 };
 

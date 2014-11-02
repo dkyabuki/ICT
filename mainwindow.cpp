@@ -50,10 +50,9 @@ MainWindow::MainWindow(QWidget *parent) :
     sigetters[8] = &Registers::getActuatorPeriod;
     sigetters[9] = &Registers::getSerialPriority;
     sigetters[10] = &Registers::getSerialPeriod;
-    sigetters[11] = &Registers::getMode;
-    sigetters[12] = &Registers::getPosPlotUnit;
-    sigetters[13] = &Registers::getTorPlotUnit;
-    sigetters[14] = &Registers::getMachineId;
+    sigetters[11] = &Registers::getPosPlotUnit;
+    sigetters[12] = &Registers::getTorPlotUnit;
+    sigetters[13] = &Registers::getMachineId;
 
     bgetters[0] = &Registers::getSensorEnable;
     bgetters[1] = &Registers::getControlEnable;
@@ -92,10 +91,9 @@ MainWindow::MainWindow(QWidget *parent) :
     sisetters[8] = &Registers::setActuatorPeriod;
     sisetters[9] = &Registers::setSerialPriority;
     sisetters[10] = &Registers::setSerialPeriod;
-    sisetters[11] = &Registers::setMode;
-    sisetters[12] = &Registers::setPosPlotUnit;
-    sisetters[13] = &Registers::setTorPlotUnit;
-    sisetters[14] = &Registers::setMachineId;
+    sisetters[11] = &Registers::setPosPlotUnit;
+    sisetters[12] = &Registers::setTorPlotUnit;
+    sisetters[13] = &Registers::setMachineId;
 
     bsetters[0] = &Registers::setSensorEnable;
     bsetters[1] = &Registers::setControlEnable;
@@ -152,18 +150,20 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->connectionLabel->setPalette(red);
     ui->ipLabel->setPalette(red);
     ui->portLabel->setPalette(red);
-
+    ui->connButton->setEnabled(false);
+    ui->driverConfigButton->setEnabled(false);
+    ui->driverPlayPauseButton->setEnabled(false);
     connect(ui->actionClose, SIGNAL(triggered()), this, SLOT(close_program()));
     connect(ui->actionSave_Current_Config, SIGNAL(triggered()), this, SLOT(save_config()));
     connect(ui->actionLoad_Config, SIGNAL(triggered()), this, SLOT(load_config()));
     connect(this, SIGNAL(on_controlStartup(bool)), this, SLOT(control_signal_emitted(bool)),Qt::DirectConnection);
     connect(this, SIGNAL(on_controlPause(bool)), this, SLOT(control_pause_signal_emitted(bool)),Qt::DirectConnection);
-    connect(samplingThread, SIGNAL(showMsg(QString)), this, SLOT(show_error(QString)),Qt::QueuedConnection);
+    connect(samplingThread, SIGNAL(showError(QString)), this, SLOT(show_error(QString)),Qt::QueuedConnection);
+    connect(samplingThread, SIGNAL(showMsg(QString)), this, SLOT(show_status(QString)), Qt::QueuedConnection);
     connect(samplingThread, SIGNAL(updateGUI(QStringList)), this, SLOT(update_connection(QStringList)));
     connect(samplingThread, SIGNAL(pointAppendedPot(QPointF)), this, SLOT(append_pos(const QPointF)),Qt::QueuedConnection);
     connect(samplingThread, SIGNAL(pointAppendedExt(QPointF)), this, SLOT(append_ext(const QPointF)),Qt::QueuedConnection);
     connect(this, SIGNAL(on_controlPause(bool)),samplingThread,SLOT(pause(bool)),Qt::QueuedConnection);
-    connect(this, SIGNAL(comm_config(QHostAddress,quint16)), samplingThread, SLOT(commConfig(QHostAddress,quint16)));
     emit on_controlStartup(false);
 }
 
@@ -173,7 +173,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::updatePlotCanvas(){
+void MainWindow::update_plot_canvas(){
     ui->potPlot->setAxisScale(0,Config::reg.getPosYMin(),Config::reg.getPosYMax(),Config::reg.getPosYStep());
     ui->potPlot->setAxisScale(2,Config::reg.getPosXMin(),Config::reg.getPosXMax(),Config::reg.getPosXStep());
     ui->torPlot->setAxisScale(0,Config::reg.getTorYMin(),Config::reg.getTorYMax(),Config::reg.getTorYStep());
@@ -238,37 +238,45 @@ void MainWindow::append_ext(const QPointF &point)
 
 void MainWindow::show_error(QString str)
 {
+    QErrorMessage err;
+    err.showMessage(str);
+    err.setModal(true);
+    err.exec();
+}
+
+void MainWindow::show_status(QString str)
+{
     ui->statusBar->showMessage(str);
 }
 
-void MainWindow::update_connection(QStringList *str)
+void MainWindow::update_connection(QStringList str)
 {
-    if(str->size() != 3){
-        ui->statusBar->showMessage("Error in GUI update - Connection: size of the config stringlist is larger than 3");
+    if(str.size() != 3){
+        show_error("Error in GUI update - Connection: size of the config stringlist is larger than 3");
         return;
     }
 
-    for(int i = 0; i < str->size(); i++)
+    for(int i = 0; i < str.size(); i++)
     {
         switch(i)
         {
         case 0:
-            ui->connectionLabel->setText((*str)[i]);
-            if(QString::compare((*str)[i],"Disconnected",Qt::CaseInsensitive) != 0)
+            ui->connectionLabel->setText((str)[i]);
+            if(QString::compare((str)[i],"Disconnected",Qt::CaseInsensitive) != 0)
                 ui->connectionLabel->setPalette(black);
             else
                 ui->connectionLabel->setPalette(red);
             break;
         case 1:
-            ui->ipLabel->setText((*str)[i]);
-            if(QString::compare((*str)[i],"-",Qt::CaseInsensitive) != 0)
+            ui->ipLabel->setText((str)[i]);
+            if(QString::compare((str)[i],"-",Qt::CaseInsensitive) != 0)
                 ui->ipLabel->setPalette(black);
             else
                 ui->ipLabel->setPalette(red);
             break;
         case 2:
-            ui->portLabel->setText((*str)[i]);
-            if(QString::compare((*str)[i],"-",Qt::CaseInsensitive) != 0)
+            ui->portLabel->setText((str)[i]);
+            if(QString::compare((str)[i],"-",Qt::CaseInsensitive) != 0)
                 ui->portLabel->setPalette(black);
             else
                 ui->portLabel->setPalette(red);
@@ -276,15 +284,13 @@ void MainWindow::update_connection(QStringList *str)
     }
 }
 
-
 void MainWindow::control_signal_emitted(bool on)
 {
-    ui->connButton->setEnabled(!on);
+//    ui->connButton->setEnabled(!on);
     ui->controlStartButton->setEnabled(!on);
     ui->convButton->setEnabled(!on);
-    ui->driverConfigButton->setEnabled(!on);
-    ui->driverPlayPauseButton->setEnabled(!on);
-    ui->modeButton->setEnabled(!on);
+//    ui->driverConfigButton->setEnabled(!on);
+//    ui->driverPlayPauseButton->setEnabled(!on);
     ui->posConfigButton->setEnabled(!on);
     ui->torConfigButton->setEnabled(!on);
     ui->posSaveButton->setEnabled(!on);
@@ -316,7 +322,7 @@ void MainWindow::control_signal_emitted(bool on)
         connectioncfg->append("-");
         connectioncfg->append("-");
     }
-    update_connection(connectioncfg);
+    update_connection(*connectioncfg);
     running = on;
 }
 
@@ -341,7 +347,7 @@ void MainWindow::control_pause_signal_emitted(bool on)
         connectioncfg->append(Config::reg.getIp());
         connectioncfg->append(QString::number(Config::reg.getPort()));
     }
-    update_connection(connectioncfg);
+    update_connection(*connectioncfg);
     running = !on;
 }
 
@@ -381,7 +387,8 @@ void MainWindow::save_config()
     }
 
     for (int i = 0; i < NST; i++){
-        out<<"04 "<<i<<" "<<(Config::reg.*sgetters[i])()<<"\n";
+        if (i != 1) //nao salva a porta serial
+            out<<"04 "<<i<<" "<<(Config::reg.*sgetters[i])()<<"\n";
     }
     file.close();
 }
@@ -467,7 +474,7 @@ void MainWindow::load_config()
         line = in.readLine();
     }
     file.close();
-    updatePlotCanvas();
+    update_plot_canvas();
 }
 
 void MainWindow::on_taskButton_clicked()
@@ -489,13 +496,6 @@ void MainWindow::on_regButton_clicked()
     Dialr registerdialog;
     registerdialog.setModal(true);
     registerdialog.exec();
-}
-
-void MainWindow::on_modeButton_clicked()
-{
-    Dialm modedialog;
-    modedialog.setModal(true);
-    modedialog.exec();
 }
 
 void MainWindow::on_posSaveButton_clicked()
@@ -529,7 +529,7 @@ void MainWindow::on_torConfigButton_clicked()
     DialTorPlot torplotdialog;
     torplotdialog.setModal(true);
     torplotdialog.exec();
-    updatePlotCanvas();
+    update_plot_canvas();
 }
 
 void MainWindow::on_posConfigButton_clicked()
@@ -537,14 +537,14 @@ void MainWindow::on_posConfigButton_clicked()
     DialPosPlot posplotdialog;
     posplotdialog.setModal(true);
     posplotdialog.exec();
-    updatePlotCanvas();
+    update_plot_canvas();
 }
 
 void MainWindow::on_commConfButton_clicked()
 {
-    DialComm commdialog;
-    commdialog.setModal(true);
-    commdialog.exec();
+    DialComm *commdialog = new DialComm(this);
+    commdialog->setModal(true);
+    commdialog->exec();
     if(Config::reg.getSerialOn())
     {
         ui->comm1label->setText("Baud Rate:");
@@ -559,6 +559,12 @@ void MainWindow::on_commConfButton_clicked()
 
 void MainWindow::on_pushButton_clicked()
 {
+    std::stringstream ss;
+    ss<<QThread::currentThreadId();
+    QString str;
+    str = QString::fromStdString(ss.str());
+    ui->statusBar->showMessage("thread ID " + str);
+    show_error(Config::reg.getSerialPort());
     double ypos, ytor;
 //    ypos = (qrand()%((int)((Config::reg.getPosYMax()*100 + 100) - Config::reg.getPosYMin()*100)) + 100*Config::reg.getPosYMin())/100.0;
 //    ytor = (qrand()%((int)((Config::reg.getTorYMax()*100 + 100) - Config::reg.getTorYMin()*100)) + 100*Config::reg.getTorYMin())/100.0;
@@ -589,7 +595,7 @@ void MainWindow::on_controlStartButton_clicked()
         ui->potPlot->clearPoints();
         ui->torPlot->clearPoints();
     }
-    updatePlotCanvas();
+    update_plot_canvas();
     emit on_controlStartup(true);
     samplingThread->setInterval(1);
     samplingThread->initiate();

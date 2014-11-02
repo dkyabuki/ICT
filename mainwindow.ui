@@ -285,22 +285,6 @@
           </property>
          </widget>
         </item>
-        <item alignment="Qt::AlignHCenter">
-         <widget class="QPushButton" name="modeButton">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="whatsThis">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set operation mode&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-          </property>
-          <property name="text">
-           <string>Mode</string>
-          </property>
-         </widget>
-        </item>
         <item>
          <spacer name="verticalSpacer">
           <property name="orientation">
@@ -453,7 +437,7 @@
            </sizepolicy>
           </property>
           <property name="text">
-           <string>Play/Pause</string>
+           <string>Enable/Disable</string>
           </property>
          </widget>
         </item>
