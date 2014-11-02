@@ -2,7 +2,7 @@
 #define REGISTERS_H
 
 #define NSI     14
-#define NB      6
+#define NB      5
 #define ND      13
 #define NI      1
 #define NST     2
@@ -56,7 +56,6 @@ public:
 
     bool getSerialOn();
     bool getUdpOn();
-    bool getTcpOn();
 
     int getPort();
 
@@ -102,7 +101,6 @@ public:
 
     void setSerialOn(bool v);
     void setUdpOn(bool v);
-    void setTcpOn(bool v);
 
     void setPort(int v);
 
@@ -133,7 +131,6 @@ private:
     bool SENSOR_ENABLE;      //2
     bool SERIAL_ON;          //3
     bool UDP_ON;             //4
-    bool TCP_ON;             //5
 
     //Double = 13
     double POS_X_MAX;    //0

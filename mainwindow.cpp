@@ -59,7 +59,6 @@ MainWindow::MainWindow(QWidget *parent) :
     bgetters[2] = &Registers::getActuatorEnable;
     bgetters[3] = &Registers::getSerialOn;
     bgetters[4] = &Registers::getUdpOn;
-    bgetters[5] = &Registers::getTcpOn;
 
     dgetters[0] = &Registers::getPosXMax;
     dgetters[1] = &Registers::getPosYMax;
@@ -100,7 +99,6 @@ MainWindow::MainWindow(QWidget *parent) :
     bsetters[2] = &Registers::setActuatorEnable;
     bsetters[3] = &Registers::setSerialOn;
     bsetters[4] = &Registers::setUdpOn;
-    bsetters[5] = &Registers::setTcpOn;
 
     dsetters[0] = &Registers::setPosXMax;
     dsetters[1] = &Registers::setPosYMax;
@@ -301,6 +299,7 @@ void MainWindow::control_signal_emitted(bool on)
     ui->controlPauseButton->setEnabled(on);
     ui->controlStopButton->setEnabled(on);
     ui->menuBar->setEnabled(!on);
+    ui->commConfButton->setEnabled(!on);
     QStringList *connectioncfg = new QStringList();
     if(on)
     {

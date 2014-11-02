@@ -3,7 +3,6 @@
 #include "qwt_sampling_thread.h"
 #include "sequenceplot.h"
 #include "udpcomm.h"
-#include "tcpcomm.h"
 #include "serialcomm.h"
 #include <qwt_series_data.h>
 #include <QTime>
@@ -44,14 +43,13 @@ protected:
 
 private:
     bool active;
-    QTime time;
+    QTime *time;
 
 //    quint16 port;
 //    QHostAddress ip;
     UdpComm *udpmgr;
-    TcpComm *tcpmgr;
     SerialComm *serialmgr;
-    double x;
+    int x;
 };
 
 #endif // SAMPLINGTHREAD_H

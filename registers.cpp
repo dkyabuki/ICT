@@ -38,7 +38,6 @@ Registers::Registers() //inicializa registros na configuração padrão
 
     SERIAL_ON = true;
     UDP_ON = false;
-    TCP_ON = false;
 
     PORT = 45454;
     IP = "127.0.0.1";
@@ -193,10 +192,6 @@ bool Registers::getSerialOn(){
 
 bool Registers::getUdpOn(){
     return(UDP_ON);
-}
-
-bool Registers::getTcpOn(){
-    return(TCP_ON);
 }
 
 int Registers::getPort(){
@@ -354,10 +349,6 @@ void Registers::setSerialOn(bool v){
 
 void Registers::setUdpOn(bool v){
     UDP_ON = v;
-}
-
-void Registers::setTcpOn(bool v){
-    TCP_ON = v;
 }
 
 void Registers::setPort(int v){

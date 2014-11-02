@@ -31,6 +31,7 @@ signals:
     void readReady();
 
 public slots:
+    void process();
     int setPort(QString portName);
     int config();
     int open();

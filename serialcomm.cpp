@@ -27,12 +27,19 @@ int SerialComm::config()
 {
     if (portNo != NULL)
     {
-        portNo->setBaudRate((qint32)Config::reg.getBaud());
+        if(!portNo->setBaudRate((qint32)Config::reg.getBaud()))
+            return -1;
+        if(!portNo->setDataBits(QSerialPort::Data8))
+            return -1;
+        if(!portNo->setParity(QSerialPort::NoParity))
+            return -1;
+        if(!portNo->setStopBits(QSerialPort::OneStop))
+            return -1;
+        if(!portNo->setFlowControl(QSerialPort::NoFlowControl))
+            return -1;
+
         QByteArray temp = QString::number(Config::reg.getMachineId()).toLocal8Bit();
         thisId = temp.data();
-        if(portNo->baudRate() == (qint32)Config::reg.getBaud())
-            return 0;
-        return -1;
     }
     return -1;
 }
@@ -71,10 +78,7 @@ QString SerialComm::test()
 
 bool SerialComm::isOpen()
 {
-    if(portNo->isOpen())
-        return true;
-    else
-        return false;
+    return (portNo->isOpen()? true : false);
 }
 
 void SerialComm::close()
