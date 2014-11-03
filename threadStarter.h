@@ -27,7 +27,7 @@ private slots:
     void emitStart();
     void emitStop();
     void emitPause(bool paused);
-    void emitSendRequest(CommMessage message);
+    void emitSendRequest(int msgCode);
     void emitPlotPoint(double time, double tor, double pos);
     void emitFinish();
 
@@ -39,7 +39,7 @@ signals:
     void stopComm();
     void pauseComm(bool paused);
     void finishComm();
-    void sendRequest(CommMessage message);
+    void sendRequest(int msgCode);
     void plotPoint(double time, double tor, double pos);
 };
 

@@ -367,7 +367,7 @@ void MainWindow::connect_thread_signals()
         connect(this, SIGNAL(startComm()), thread, SLOT(emitStart()));
         connect(this, SIGNAL(stopComm()), thread, SLOT(emitStop()));
         connect(this, SIGNAL(config()), thread, SLOT(emitUpdate()));
-        connect(this, SIGNAL(sendRequest(CommMessage)), thread, SLOT(emitSendRequest(CommMessage)));
+        connect(this, SIGNAL(sendRequest(int)), thread, SLOT(emitSendRequest(int)));
         connect(this, SIGNAL(finishComm()), thread, SLOT(emitFinish()));
     }
 }
@@ -592,7 +592,7 @@ void MainWindow::on_commConfButton_clicked()
     handshake.datasize = (char)(strlen(handshake.data));
     handshake.checksum[0] = '0';
     handshake.checksum[1] = '0';
-    emit(sendRequest(handshake));
+    emit(sendRequest(5));
 }
 
 void MainWindow::commConfSeq()
@@ -637,7 +637,7 @@ void MainWindow::on_pushButton_clicked()
     handshake.datasize = (char)(strlen(handshake.data));
     handshake.checksum[0] = '0';
     handshake.checksum[1] = '0';
-    emit(sendRequest(handshake));
+    emit(sendRequest(5));
 
 }
 

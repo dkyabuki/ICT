@@ -81,7 +81,7 @@ signals:
 
     //SINAIS PARA A COMM.
     void config();
-    void sendRequest(CommMessage msg);
+    void sendRequest(int msg);
     void startComm();
     void stopComm();
     void pauseComm(bool pause);

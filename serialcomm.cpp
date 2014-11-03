@@ -46,44 +46,88 @@ void SerialComm::process()
 //    emit show_message("thread ID " + str);
 }
 
-void SerialComm::sendQuery(CommMessage message)
+void SerialComm::sendQuery(int msgCode)
 {
+    CommMessage msg;
+    char buf[5];
+    msg.start = ':';
+    msg.id = 'A';
+    switch(msgCode)
+    {
+    case (0):
+        msg.command[0] = 'S';
+        msg.command[1] = 'T';
+        char *aux = msg.data;
+        *aux = '|';
+        aux++;
+        if(Config::reg.getSensorEnable() == true)
+            *aux = '1';
+        else
+            *aux = '0';
+        aux += 1;
+        *aux = '|';
+        aux++;
+
+        memcpy(aux, itoa(Config::reg.getSerialPeriod(), buf, 10), sizeof(short int));
+//        aux += sizeof(short int);
+//        *aux = '\0';
+//        emit(show_message((QString)msg.data));
+//        break;
+//    case (1):
+//        msg.command[0] = 'S';
+//        msg.command[1] = 'P';
+//        break;
+//    case (2):
+//        msg.command[0] = 'S';
+//        msg.command[1] = 'R';
+//        break;
+//    case (3):
+//        msg.command[0] = 'O';
+//        msg.command[1] = '0';
+//        break;
+//    case (4):
+//        msg.command[0] = 'O';
+//        msg.command[1] = '1';
+//        break;
+//    case (5):
+//        msg.command[0] = 'H';
+//        msg.command[1] = '0';
+//        break;
+//    case (6):
+//        msg.command[0] = 'C';
+//        msg.command[1] = '0';
+//        break;
+//    case (7):
+//        msg.command[0] = 'C';
+//        msg.command[1] = '1';
+//        break;
+//    case (8):
+//        msg.command[0] = 'S';
+//        msg.command[1] = 'N';
+//        break;
+//    case (9):
+//        msg.command[0] = 'O';
+//        msg.command[1] = '2';
+//        break;
+//    case (10):
+//        msg.command[0] = 'O';
+//        msg.command[1] = '3';
+    }
+    msg.checksum[0] = '0';
+    msg.checksum[1] = '0';
 //    portNo->write(QByteArray::fromRawData((char *)&message, sizeof(message)));
-    emit(show_message("sinal emitido 2"));
+    emit(show_message(QString::number(sizeof(char))));
 }
 
 void SerialComm::start()
 {
-    CommMessage startOrder;
-    startOrder.start = ':';
-    startOrder.id = 'A';
-    startOrder.command[0] = 'O';
-    startOrder.command[1] = '0';
-    startOrder.data = (new QString("Hello, device!"))->toLocal8Bit().data();
-    startOrder.datasize = (char)(strlen(startOrder.data));
-//    for(int i = 0; i < strlen(startOrder.data); i++)
-//    {
-//        startOrder.data[i];
-//    }
-//    startOrder.checksum = (char)0xFFFF - startOrder.start - startOrder.id - startOrder.command[0] - startOrder.command[1];
-    startOrder.checksum[0] = '0';
-    startOrder.checksum[1] = '0';
-    sendQuery(startOrder);
+    sendQuery(3);
     active = true;
 }
 
 void SerialComm::stop()
 {
-    CommMessage stopOrder;
-    stopOrder.start = ':';
-    stopOrder.id = 'A';
-    stopOrder.command[0] = 'O';
-    stopOrder.command[1] = '1';
-    stopOrder.data = "";
-    stopOrder.datasize = 0;
-    stopOrder.checksum[0] = '0';
-    stopOrder.checksum[1] = '0';
-    sendQuery(stopOrder);
+    sendQuery(4);
     active = false;
 }
 

@@ -39,7 +39,7 @@ public slots:
     QString test();
 
 private slots:
-    void sendQuery(CommMessage message);
+    void sendQuery(int msgCode);
     void config();
     void start();
     void stop();

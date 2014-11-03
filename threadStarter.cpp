@@ -30,7 +30,7 @@ void threadStarter::run()
         connect(this, SIGNAL(startComm()), serialmgr, SLOT(start()));
         connect(this, SIGNAL(pauseComm(bool)), serialmgr, SLOT(pause(bool)));
         connect(this, SIGNAL(stopComm()), serialmgr, SLOT(stop()));
-        connect(this, SIGNAL(sendRequest(CommMessage)), serialmgr, SLOT(sendQuery(CommMessage)));
+        connect(this, SIGNAL(sendRequest(int)), serialmgr, SLOT(sendQuery(int)));
         connect(this, SIGNAL(finishComm()), serialmgr, SLOT(finishComm()));
     }
     else if (Config::reg.getUdpOn())
@@ -80,9 +80,9 @@ void threadStarter::emitPause(bool paused)
     emit(pauseComm(paused));
 }
 
-void threadStarter::emitSendRequest(CommMessage message)
+void threadStarter::emitSendRequest(int msgCode)
 {
-    emit(sendRequest(message));
+    emit(sendRequest(msgCode));
 }
 
 void threadStarter::emitFinish()
