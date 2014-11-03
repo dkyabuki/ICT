@@ -55,6 +55,9 @@ private slots:
     void show_status(QString str);
     void update_connection(QStringList str);
 
+    //Thread related
+    void connect_thread_signals();
+
     //Button slots
     void on_taskButton_clicked();
     void on_convButton_clicked();
@@ -69,10 +72,20 @@ private slots:
     void on_controlStopButton_clicked();
     void on_commConfButton_clicked();
 
+    void commConfSeq();
+
 signals:
     void on_controlStartup(bool on);
     void on_controlPause(bool on);
     void comm_config(QHostAddress ipconf, quint16 portconf);
+
+    //SINAIS PARA A COMM.
+    void config();
+    void sendRequest(CommMessage msg);
+    void startComm();
+    void stopComm();
+    void pauseComm(bool pause);
+    void finishComm();
 
 private:
     threadStarter *thread;

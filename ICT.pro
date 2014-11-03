@@ -21,17 +21,15 @@ SOURCES += main.cpp\
     dialr.cpp \
     registers.cpp \
     dials.cpp \
-    plotdata.cpp \
-    dialquit.cpp \
+    udpcomm.cpp \
+    dialcomm.cpp \
     dialposplot.cpp \
     dialtorplot.cpp \
-    dialcomm.cpp \
-    udpcomm.cpp \
+    dialquit.cpp \
+    plotdata.cpp \
+    threadStarter.cpp \
     sequenceplot.cpp \
-    serialcomm.cpp \
-    threadStarter.cpp
-
-
+    serialcomm.cpp
 
 HEADERS  += mainwindow.h \
     dialt.h \
@@ -40,15 +38,15 @@ HEADERS  += mainwindow.h \
     registers.h \
     config.h \
     dials.h \
-    plotdata.h \
-    dialquit.h \
+    udpcomm.h \
+    dialcomm.h \
     dialposplot.h \
     dialtorplot.h \
-    dialcomm.h \
-    udpcomm.h \
+    dialquit.h \
+    plotdata.h \
+    threadStarter.h \
     sequenceplot.h \
-    serialcomm.h \
-    threadStarter.h
+    serialcomm.h
 
 FORMS    += mainwindow.ui \
     dialt.ui \
@@ -57,9 +55,10 @@ FORMS    += mainwindow.ui \
     dialm.ui \
     dials.ui \
     dialcomm.ui \
+    dialtorplot.ui \
     dialposplot.ui \
     dialquit.ui \
-    dialtorplot.ui
+
 
 #win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../qwt-6.1.0/lib/ -lqwt
 #else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../qwt-6.1.0/lib/ -lqwtd
@@ -68,10 +67,9 @@ FORMS    += mainwindow.ui \
 #INCLUDEPATH += $$PWD/../../../../qwt-6.1.0/include
 #DEPENDPATH += $$PWD/../../../../qwt-6.1.0/include
 
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../../qwt-6.1.0/lib/ -lqwt
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../../qwt-6.1.0/lib/ -lqwtd
+else:unix: LIBS += -L$$PWD/../../../../../qwt-6.1.0/lib/ -lqwt
 
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../Programas/qwt-6.1.0/lib/ -lqwt
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../Programas/qwt-6.1.0/lib/ -lqwtd
-else:unix: LIBS += -L$$PWD/../Programas/qwt-6.1.0/lib/ -lqwt
-
-INCLUDEPATH += $$PWD/../Programas/qwt-6.1.0/include
-DEPENDPATH += $$PWD/../Programas/qwt-6.1.0/include
+INCLUDEPATH += $$PWD/../../../../../qwt-6.1.0/include
+DEPENDPATH += $$PWD/../../../../../qwt-6.1.0/include

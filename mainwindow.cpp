@@ -119,13 +119,14 @@ MainWindow::MainWindow(QWidget *parent) :
     ssetters[0] = &Registers::setIp;
     ssetters[1] = &Registers::setSerialPort;
 
+    //Inicializa variaveis globais
     running = false;
     timepot = 0;
     timetor = 0;
     red.setColor(QPalette::WindowText,Qt::red);
     black.setColor(QPalette::WindowText,Qt::black);
-    thread = new threadStarter(this);
 
+    //Inicializa a GUI
     ui->potPlot->setAxisScale(0,-20,20,5);
     ui->potPlot->setAxisScale(2,0,1,0.1);
     ui->torPlot->setAxisScale(0,-2,2,0.5);
@@ -134,34 +135,22 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->potPlot->setAxisTitle(2,"Time (s)");
     ui->torPlot->setAxisTitle(0,"Tension (V)");
     ui->torPlot->setAxisTitle(2,"Time (s)");
-
-    if(Config::reg.getSerialOn())
-    {
-        ui->comm1label->setText("Baud Rate:");
-        ui->comm2label->setText("Machine ID:");
-    }
-    else
-    {
-        ui->comm1label->setText("IP:");
-        ui->comm2label->setText("Port:");
-    }
-    ui->connectionLabel->setPalette(red);
-    ui->ipLabel->setPalette(red);
-    ui->portLabel->setPalette(red);
     ui->connButton->setEnabled(false);
     ui->driverConfigButton->setEnabled(false);
     ui->driverPlayPauseButton->setEnabled(false);
+
+    //Conecta sinais internos
     connect(ui->actionClose, SIGNAL(triggered()), this, SLOT(close_program()));
     connect(ui->actionSave_Current_Config, SIGNAL(triggered()), this, SLOT(save_config()));
     connect(ui->actionLoad_Config, SIGNAL(triggered()), this, SLOT(load_config()));
     connect(this, SIGNAL(on_controlStartup(bool)), this, SLOT(control_signal_emitted(bool)),Qt::DirectConnection);
     connect(this, SIGNAL(on_controlPause(bool)), this, SLOT(control_pause_signal_emitted(bool)),Qt::DirectConnection);
-//    connect(samplingThread, SIGNAL(showError(QString)), this, SLOT(show_error(QString)),Qt::QueuedConnection);
-//    connect(samplingThread, SIGNAL(showMsg(QString)), this, SLOT(show_status(QString)), Qt::QueuedConnection);
 //    connect(samplingThread, SIGNAL(updateGUI(QStringList)), this, SLOT(update_connection(QStringList)));
 //    connect(samplingThread, SIGNAL(pointAppendedPot(QPointF)), this, SLOT(append_pos(const QPointF)),Qt::QueuedConnection);
 //    connect(samplingThread, SIGNAL(pointAppendedExt(QPointF)), this, SLOT(append_ext(const QPointF)),Qt::QueuedConnection);
-//    connect(this, SIGNAL(on_controlPause(bool)),samplingThread,SLOT(pause(bool)),Qt::QueuedConnection);
+
+    //Seta enables dos botões e atualiza labels de comunicação
+    thread = NULL;
     emit on_controlStartup(false);
 }
 
@@ -334,20 +323,53 @@ void MainWindow::control_pause_signal_emitted(bool on)
     ui->controlStopButton->setEnabled(!on);
     ui->controlPauseButton->setText(on? "Continue":"Pause");
     QStringList *connectioncfg = new QStringList();
-    if(!on)
+    if (Config::reg.getSerialOn())
     {
-        connectioncfg->append("Listening to");
-        connectioncfg->append(Config::reg.getIp());
-        connectioncfg->append(QString::number(Config::reg.getPort()));
+        if(!on)
+        {
+            connectioncfg->append("Listening to");
+            connectioncfg->append(QString::number(Config::reg.getBaud()));
+            connectioncfg->append(QString::number(Config::reg.getMachineId()));
+        }
+        else
+        {
+            connectioncfg->append("Paused");
+            connectioncfg->append(QString::number(Config::reg.getBaud()));
+            connectioncfg->append(QString::number(Config::reg.getMachineId()));
+        }
     }
-    else
+    else if (Config::reg.getUdpOn())
     {
-        connectioncfg->append("Paused");
-        connectioncfg->append(Config::reg.getIp());
-        connectioncfg->append(QString::number(Config::reg.getPort()));
+        if(!on)
+        {
+            connectioncfg->append("Listening to");
+            connectioncfg->append(Config::reg.getIp());
+            connectioncfg->append(QString::number(Config::reg.getPort()));
+        }
+        else
+        {
+            connectioncfg->append("Paused");
+            connectioncfg->append(Config::reg.getIp());
+            connectioncfg->append(QString::number(Config::reg.getPort()));
+        }
     }
     update_connection(*connectioncfg);
     running = !on;
+}
+
+void MainWindow::connect_thread_signals()
+{
+    if(thread != NULL)
+    {
+        connect(thread, SIGNAL(showError(QString)), this, SLOT(show_error(QString)));
+        connect(thread, SIGNAL(showMsg(QString)), this, SLOT(show_status(QString)));
+        connect(this, SIGNAL(pauseComm(bool)), thread, SLOT(emitPause(bool)));
+        connect(this, SIGNAL(startComm()), thread, SLOT(emitStart()));
+        connect(this, SIGNAL(stopComm()), thread, SLOT(emitStop()));
+        connect(this, SIGNAL(config()), thread, SLOT(emitUpdate()));
+        connect(this, SIGNAL(sendRequest(CommMessage)), thread, SLOT(emitSendRequest(CommMessage)));
+        connect(this, SIGNAL(finishComm()), thread, SLOT(emitFinish()));
+    }
 }
 
 void MainWindow::close_program(){
@@ -554,16 +576,37 @@ void MainWindow::on_commConfButton_clicked()
         ui->comm1label->setText("IP:");
         ui->comm2label->setText("Port:");
     }
+    if(thread == NULL)
+    {
+        thread = new threadStarter(this);
+        connect_thread_signals();
+        thread->start();
+    }
+    emit(config());
+    CommMessage handshake;
+    handshake.start = ':';
+    handshake.id = 'A';
+    handshake.command[0] = 'H';
+    handshake.command[1] = '0';
+    handshake.data = (new QString("Hello, device!"))->toLocal8Bit().data();
+    handshake.datasize = (char)(strlen(handshake.data));
+    handshake.checksum[0] = '0';
+    handshake.checksum[1] = '0';
+    emit(sendRequest(handshake));
+}
+
+void MainWindow::commConfSeq()
+{
 }
 
 void MainWindow::on_pushButton_clicked()
 {
-    std::stringstream ss;
-    ss<<QThread::currentThreadId();
-    QString str;
-    str = QString::fromStdString(ss.str());
-    ui->statusBar->showMessage("thread ID " + str);
-    show_error(Config::reg.getSerialPort());
+//    std::stringstream ss;
+//    ss<<QThread::currentThreadId();
+//    QString str;
+//    str = QString::fromStdString(ss.str());
+//    ui->statusBar->showMessage("thread ID " + str);
+//    show_error(Config::reg.getSerialPort());
     double ypos, ytor;
 //    ypos = (qrand()%((int)((Config::reg.getPosYMax()*100 + 100) - Config::reg.getPosYMin()*100)) + 100*Config::reg.getPosYMin())/100.0;
 //    ytor = (qrand()%((int)((Config::reg.getTorYMax()*100 + 100) - Config::reg.getTorYMin()*100)) + 100*Config::reg.getTorYMin())/100.0;
@@ -585,6 +628,17 @@ void MainWindow::on_pushButton_clicked()
         timetor -= Config::reg.getTorXMax();
         ui->torPlot->clearPoints();
     }
+    CommMessage handshake;
+    handshake.start = ':';
+    handshake.id = 'A';
+    handshake.command[0] = 'H';
+    handshake.command[1] = '0';
+    handshake.data = (new QString("Hello, device!"))->toLocal8Bit().data();
+    handshake.datasize = (char)(strlen(handshake.data));
+    handshake.checksum[0] = '0';
+    handshake.checksum[1] = '0';
+    emit(sendRequest(handshake));
+
 }
 
 void MainWindow::on_controlStartButton_clicked()
@@ -610,4 +664,3 @@ void MainWindow::on_controlStopButton_clicked()
     emit on_controlStartup(false);
 //    samplingThread->halt();
 }
-

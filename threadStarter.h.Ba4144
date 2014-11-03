@@ -26,10 +26,9 @@ private slots:
     void emitUpdate();
     void emitStart();
     void emitStop();
-    void emitPause(bool paused);
+    void emitPause();
     void emitSendRequest(CommMessage message);
     void emitPlotPoint(double time, double tor, double pos);
-    void emitFinish();
 
 signals:
     void showError(QString error);
@@ -37,8 +36,7 @@ signals:
     void updateComm();
     void startComm();
     void stopComm();
-    void pauseComm(bool paused);
-    void finishComm();
+    void pauseComm();
     void sendRequest(CommMessage message);
     void plotPoint(double time, double tor, double pos);
 };

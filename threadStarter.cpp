@@ -3,15 +3,6 @@
 
 threadStarter::threadStarter(QObject *parent):QThread(parent)
 {
-//    active = false;
-//    if(Config::reg.getUdpOn())
-//        udpmgr = new UdpComm(this);
-//    else if(Config::reg.getSerialOn())
-//        serialmgr = new SerialComm(this);
-//    else
-//        emit(showError("Nenhuma forma de comunicação foi selecionada"));
-//    time = new QTime();
-//    x=0;
 }
 
 threadStarter::~threadStarter()
@@ -21,32 +12,42 @@ threadStarter::~threadStarter()
 
 void threadStarter::run()
 {
-    QTimer timer;
+    QTimer *timer = new QTimer();
     if (Config::reg.getSerialOn())
     {
-        SerialComm serialmgr;
-        connect(&timer, SIGNAL(timeout()), &serialmgr, SLOT(process()));
-        connect(&serialmgr, SIGNAL(finished()), this, SLOT(quit()));
-        connect(&serialmgr, SIGNAL(finished()), &serialmgr, SLOT(quit()));
-        connect(&serialmgr, SIGNAL(finished()), this, SLOT(deleteLater()));
-        connect(&serialmgr, SIGNAL(show_error(QString)), this, SLOT(emitError(QString)));
-        connect(&serialmgr, SIGNAL(show_message(QString)), this, SLOT(emitMessage(QString)));
+        SerialComm *serialmgr = new SerialComm();
+        connect(timer, SIGNAL(timeout()), serialmgr, SLOT(process()));
+
+        //sinais da comm. para a GUI
+        connect(serialmgr, SIGNAL(finished()), this, SLOT(quit()));
+//        connect(serialmgr, SIGNAL(finished()), serialmgr, SLOT(quit()));
+        connect(serialmgr, SIGNAL(finished()), this, SLOT(deleteLater()));
+        connect(serialmgr, SIGNAL(show_error(QString)), this, SLOT(emitError(QString)));
+        connect(serialmgr, SIGNAL(show_message(QString)), this, SLOT(emitMessage(QString)));
+
+        //sinais da GUI para a comm.
+        connect(this, SIGNAL(updateComm()), serialmgr, SLOT(config()));
+        connect(this, SIGNAL(startComm()), serialmgr, SLOT(start()));
+        connect(this, SIGNAL(pauseComm(bool)), serialmgr, SLOT(pause(bool)));
+        connect(this, SIGNAL(stopComm()), serialmgr, SLOT(stop()));
+        connect(this, SIGNAL(sendRequest(CommMessage)), serialmgr, SLOT(sendQuery(CommMessage)));
+        connect(this, SIGNAL(finishComm()), serialmgr, SLOT(finishComm()));
     }
     else if (Config::reg.getUdpOn())
     {
         UdpComm udpmgr;
-        connect(&timer, SIGNAL(timeout()), &udpmgr, SLOT(process()));
+        connect(timer, SIGNAL(timeout()), &udpmgr, SLOT(process()));
         connect(&udpmgr, SIGNAL(finished()), this, SLOT(quit()));
         connect(&udpmgr, SIGNAL(finished()), &udpmgr, SLOT(quit()));
         connect(&udpmgr, SIGNAL(finished()), this, SLOT(deleteLater()));
     }
-    timer.start(2);
+    timer->start(100);
     exec();
 }
 
-void threadStarter::finishThread()
+void threadStarter::emitPlotPoint(double time, double tor, double pos)
 {
-
+    emit(plotPoint(time, tor, pos));
 }
 
 void threadStarter::emitError(QString error)
@@ -74,60 +75,26 @@ void threadStarter::emitStop()
     emit(stopComm());
 }
 
-void threadStarter::emitPause()
+void threadStarter::emitPause(bool paused)
 {
-    emit(pauseComm());
+    emit(pauseComm(paused));
 }
 
-void threadStarter::emitSendRequest()
+void threadStarter::emitSendRequest(CommMessage message)
 {
-    emit(sendRequest());
+    emit(sendRequest(message));
 }
 
-//void threadStarter::initiate()
-//{
-//    if (Config::reg.getUdpOn())
-//    {
-//        udpmgr->bind(45454, UdpComm::ShareAddress);
-//        start();
-//        time->start();
-//        active = true;
-//    }
-//}
-
-//void threadStarter::halt()
-//{
-//    if (Config::reg.getUdpOn())
-//        udpmgr->abort();
-//    stop();
-//}
+void threadStarter::emitFinish()
+{
+    emit(finishComm());
+}
 
 //void threadStarter::sample( double elapsed )
 //{
 //    Q_UNUSED(elapsed);
 //    if(active)
 //    {
-//        /*************************/
-//        /*    Conexao por UDP    */
-//        /*************************/
-//        if(Config::reg.getUdpOn())
-//        {
-//            if(udpmgr->hasPendingDatagrams())
-//            {
-//                QStringList query = udpmgr->udpRead();
-//                if(!UdpComm::datagramIsWrong(query))
-//                {
-//                    if(query[0].toInt() == 00)
-//                        emit showMsg("tipo = " + query[1]);
-//                    else
-//                        plot(query);
-//                }
-//                else
-//                {
-//                    emit showError("Erro ao ler valores");
-//                }
-//            }
-//        }
 //        /*************************/
 //        /*   Conexao por SERIAL  */
 //        /*************************/
@@ -137,23 +104,12 @@ void threadStarter::emitSendRequest()
 //            emit(showMsg(serialmgr->test()));
 //        }
 //    }
-////    std::stringstream ss;
-////    ss<<QThread::currentThreadId();
-////    QString str;
-////    str = QString::fromStdString(ss.str());
-////    emit showMsg("thread ID " + str);
+
 //}
 
 //void threadStarter::pause(bool running)
 //{
 //    active = !running;
-//    if (Config::reg.getUdpOn())
-//    {
-//        if (!active)
-//            udpmgr->abort();
-//        else
-//            udpmgr->bind(45454, UdpComm::ShareAddress);
-//    }
 //    else if (Config::reg.getSerialOn())
 //    {
 
