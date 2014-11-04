@@ -5,6 +5,7 @@ SerialComm::SerialComm(QObject *parent) :
 {
     active = false;
     ready = false;
+    portNo = NULL;
 }
 
 CommMessage* SerialComm::readMsg()
@@ -48,75 +49,102 @@ void SerialComm::process()
 
 void SerialComm::sendQuery(int msgCode)
 {
-    CommMessage msg;
     char buf[5];
-    msg.start = ':';
-    msg.id = 'A';
+    char *msg;
+    msg = (char *)malloc(262);
+    char *datasize;
+    char *aux = msg;
+    *aux = ':';
+    aux++;
+    *aux = 'A';
+    aux++;
     switch(msgCode)
     {
-    case (0):
-        msg.command[0] = 'S';
-        msg.command[1] = 'T';
-        char *aux = msg.data;
+    case(0):
+        *aux = 'S';
+        aux++;
+        *aux = 'T';
+        aux++;
+        datasize = aux;
+        aux += sizeof(CommMessage::datasize);
         *aux = '|';
         aux++;
-        if(Config::reg.getSensorEnable() == true)
-            *aux = '1';
-        else
-            *aux = '0';
-        aux += 1;
+        strcpy(aux, itoa(Config::reg.getSensorEnable(), buf, 10));
+        aux += strlen(buf);
         *aux = '|';
         aux++;
-
-        memcpy(aux, itoa(Config::reg.getSerialPeriod(), buf, 10), sizeof(short int));
-//        aux += sizeof(short int);
-//        *aux = '\0';
-//        emit(show_message((QString)msg.data));
-//        break;
-//    case (1):
-//        msg.command[0] = 'S';
-//        msg.command[1] = 'P';
-//        break;
-//    case (2):
-//        msg.command[0] = 'S';
-//        msg.command[1] = 'R';
-//        break;
-//    case (3):
-//        msg.command[0] = 'O';
-//        msg.command[1] = '0';
-//        break;
-//    case (4):
-//        msg.command[0] = 'O';
-//        msg.command[1] = '1';
-//        break;
-//    case (5):
-//        msg.command[0] = 'H';
-//        msg.command[1] = '0';
-//        break;
-//    case (6):
-//        msg.command[0] = 'C';
-//        msg.command[1] = '0';
-//        break;
-//    case (7):
-//        msg.command[0] = 'C';
-//        msg.command[1] = '1';
-//        break;
-//    case (8):
-//        msg.command[0] = 'S';
-//        msg.command[1] = 'N';
-//        break;
-//    case (9):
-//        msg.command[0] = 'O';
-//        msg.command[1] = '2';
-//        break;
-//    case (10):
-//        msg.command[0] = 'O';
-//        msg.command[1] = '3';
+        strcpy(aux, itoa(Config::reg.getSensorPeriod(), buf, 10));
+        aux += strlen(buf);
+        *aux = '|';
+        aux++;
+        strcpy(aux, itoa(Config::reg.getSensorPriority(), buf, 10));
+        aux += strlen(buf);
+        *aux = '|';
+        aux++;
+        strcpy(aux, itoa(Config::reg.getControlEnable(), buf, 10));
+        aux += strlen(buf);
+        *aux = '|';
+        aux++;
+        strcpy(aux, itoa(Config::reg.getControlPeriod(), buf, 10));
+        aux += strlen(buf);
+        *aux = '|';
+        aux++;
+        strcpy(aux, itoa(Config::reg.getControlPriority(), buf, 10));
+        aux += strlen(buf);
+        *aux = '|';
+        aux++;
+        strcpy(aux, itoa(Config::reg.getActuatorEnable(), buf, 10));
+        aux += strlen(buf);
+        *aux = '|';
+        aux++;
+        strcpy(aux, itoa(Config::reg.getActuatorPeriod(), buf, 10));
+        aux += strlen(buf);
+        *aux = '|';
+        aux++;
+        strcpy(aux, itoa(Config::reg.getActuatorPriority(), buf, 10));
+        aux += strlen(buf);
+        *aux = '|';
+        aux++;
+        strcpy(aux, itoa(Config::reg.getSerialPeriod(), buf, 10));
+        aux += strlen(buf);
+        *aux = '|';
+        aux++;
+        strcpy(aux, itoa(Config::reg.getSerialPriority(), buf, 10));
+        aux += strlen(buf);
+        *aux = '|';
+        aux++;
+        *datasize = (char)(aux - (datasize + sizeof(CommMessage::datasize)));
+        break;
+    case(1):
+        break;
+    case(2):
+        break;
+    case(3):
+        break;
+    case(4):
+        break;
+    case(5):
+        break;
+    case(6):
+        break;
+    case(7):
+        break;
+    case(8):
+        break;
+    case(9):
+        break;
+    case(10):
+        break;
     }
-    msg.checksum[0] = '0';
-    msg.checksum[1] = '0';
-//    portNo->write(QByteArray::fromRawData((char *)&message, sizeof(message)));
-    emit(show_message(QString::number(sizeof(char))));
+    *aux = '0';
+    aux++;
+    *aux = '0';
+    aux++;
+    *aux = '\0';
+//    emit(show_error((QString)(msg)));
+    portNo->write((char *)&msg, strlen(msg) + 1);
+    if(!portNo->waitForBytesWritten(10))
+        emit(show_error("Falhou em escrever a mensagem!"));
 }
 
 void SerialComm::start()
@@ -161,10 +189,13 @@ void SerialComm::pause(bool paused)
 
 void SerialComm::config()
 {
+    emit(show_message("Iniciando configuração da porta serial..."));
     if (portNo != NULL)
+    {
         if (portNo->isOpen())
             portNo->close();
         free(portNo);
+    }
     foreach(const QSerialPortInfo info, QSerialPortInfo::availablePorts())
     {
         if(QString::compare(info.portName(), Config::reg.getSerialPort()) == 0)
@@ -207,6 +238,7 @@ void SerialComm::config()
     }
     else
         emit(show_error("Náo foi possível encontrar a porta serial"));
+    emit(show_message("Porta serial configurada com sucesso!"));
     return;
 }
 

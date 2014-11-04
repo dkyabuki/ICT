@@ -582,17 +582,9 @@ void MainWindow::on_commConfButton_clicked()
         connect_thread_signals();
         thread->start();
     }
+    QThread::msleep(100);
     emit(config());
-    CommMessage handshake;
-    handshake.start = ':';
-    handshake.id = 'A';
-    handshake.command[0] = 'H';
-    handshake.command[1] = '0';
-    handshake.data = (new QString("Hello, device!"))->toLocal8Bit().data();
-    handshake.datasize = (char)(strlen(handshake.data));
-    handshake.checksum[0] = '0';
-    handshake.checksum[1] = '0';
-    emit(sendRequest(5));
+    emit(sendRequest(0));
 }
 
 void MainWindow::commConfSeq()
@@ -637,7 +629,7 @@ void MainWindow::on_pushButton_clicked()
     handshake.datasize = (char)(strlen(handshake.data));
     handshake.checksum[0] = '0';
     handshake.checksum[1] = '0';
-    emit(sendRequest(5));
+    emit(sendRequest(0));
 
 }
 
